@@ -8,8 +8,8 @@ import Footer from "../components/Footer"
 
 const bairrosLuanda = [
   "Talatona", "Kilamba Kiaxi", "Luanda", "Viana", "Cazenga",
-  "Quimper", "Rangel", "Benilson", "Caála", "Camama",
-  "Zango", "Maianga", "Alvalade", "Praia do Bispo", "Conguém", "Morro Bento",
+  "Benfica", "Rangel", "Golf 2", "Calemba 2", "Camama",
+  "Zango", "Maianga", "Alvalade", "Praia do Bispo", "Nova Vida", "Morro Bento",
 ]
 
 export default function PublicarCasa() {
