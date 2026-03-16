@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 import { useAuth } from "../contexts/AuthContext"
 import { casasService } from "../services/casasService"
 import { supabase } from "../lib/supabaseClient"
