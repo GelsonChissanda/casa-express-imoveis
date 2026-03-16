@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../../contexts/AuthContext"
@@ -20,9 +21,9 @@ export default function Dashboard() {
   const nomeUtilizador = user?.user_metadata?.nome || user?.email
 
   useEffect(() => {
-    if (!authLoading && !user) router.push("/auth")
-    if (user) carregarDados()
-  }, [user, authLoading])
+  if (!authLoading && !user) router.push("/auth")
+  if (!authLoading && user) carregarDados()
+}, [authLoading, user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const carregarDados = async () => {
     try {
@@ -62,7 +63,7 @@ export default function Dashboard() {
     <div>
       <Navbar />
       <div className="min-h-screen bg-gray-50">
-        <div className="bg-gradient-to-r from-blue-900 to-blue-700 pt-24 pb-12">
+        <div className="bg-linear-to-r from-blue-900 to-blue-700 pt-24 pb-12">
           <div className="max-w-6xl mx-auto px-4">
             <div className="flex justify-between items-center">
               <div>
@@ -81,23 +82,31 @@ export default function Dashboard() {
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center min-h-[400px]"><p className="text-xl text-gray-600">Carregando...</p></div>
+            <div className="flex items-center justify-center min-h-100"><p className="text-xl text-gray-600">Carregando...</p></div>
           ) : aba === "casas" ? (
             <div>
               <div className="mb-6 flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-800">Minhas Casas ({minhasCasas.length})</h2>
-                <button onClick={() => router.push("/PublicarCasa")} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Publicar Nova Casa</button>
+                <button onClick={() => router.push("/publicarCasa")} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Publicar Nova Casa</button>
               </div>
               {minhasCasas.length === 0 ? (
-                <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-lg">
+                <div className="flex flex-col items-center justify-center min-h-100 bg-white rounded-lg">
                   <p className="text-gray-600 mb-4">Ainda não publicaste nenhuma casa</p>
-                  <button onClick={() => router.push("/PublicarCasa")} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Publicar Primeira Casa</button>
+                  <button onClick={() => router.push("/publicarCasa")} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Publicar Primeira Casa</button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {minhasCasas.map((casa) => (
                     <div key={casa.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-                      {casa.imagem_url && <img src={casa.imagem_url} alt={casa.titulo} className="w-full h-48 object-cover" />}
+                     {casa.imagem_url && (
+  <Image
+    src={casa.imagem_url}
+    alt={casa.titulo}
+    width={400}
+    height={192}
+    className="w-full h-48 object-cover"
+  />
+)}
                       <div className="p-4">
                         <h3 className="font-bold text-gray-800 mb-2">{casa.titulo}</h3>
                         <p className="text-blue-600 font-bold mb-3">{new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}/mês</p>
@@ -115,7 +124,7 @@ export default function Dashboard() {
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Minhas Visitas ({minhasVisitas.length})</h2>
               {minhasVisitas.length === 0 ? (
-                <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-lg">
+                <div className="flex flex-col items-center justify-center min-h-100 bg-white rounded-lg">
                   <p className="text-gray-600">Ainda não marcaste nenhuma visita</p>
                 </div>
               ) : (

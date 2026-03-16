@@ -39,7 +39,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#F7F8FC]">
       <Navbar />
 
-      <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 pt-28 pb-20 overflow-hidden">
+      <section className="relative bg-linear-to-br from-blue-900 via-blue-800 to-blue-600 pt-28 pb-20 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-64 h-64 border border-white rounded-full" />
           <div className="absolute top-20 left-20 w-40 h-40 border border-white rounded-full" />
@@ -179,7 +179,7 @@ export default function Home() {
 
       <section className="py-20 bg-[#F7F8FC]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-r from-blue-900 to-blue-700 rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden">
+          <div className="bg-linear-to-r from-blue-900 to-blue-700 rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden">
             <div className="absolute inset-0 opacity-10">
               <div className="absolute -top-10 -right-10 w-60 h-60 border border-white rounded-full" />
               <div className="absolute -bottom-10 -left-10 w-60 h-60 border border-white rounded-full" />

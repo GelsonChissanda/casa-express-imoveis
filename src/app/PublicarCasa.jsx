@@ -111,7 +111,7 @@ export default function PublicarCasa() {
             </div>
             <h2 className="text-2xl font-extrabold text-gray-800 mb-3">Casa publicada!</h2>
             <p className="text-gray-500 text-sm mb-7">
-              O teu anúncio "<strong>{form.titulo}</strong>" foi publicado com sucesso e já está visível para os clientes.
+             O teu anúncio &quot;<strong>{form.titulo}</strong>&quot; foi publicado com sucesso e já está visível para os clientes.
             </p>
             <div className="flex flex-col gap-3">
               <button onClick={() => navigate("/dashboard")}
@@ -134,7 +134,7 @@ export default function PublicarCasa() {
     <div className="min-h-screen bg-[#F7F8FC]">
       <Navbar />
 
-      <div className="bg-gradient-to-r from-blue-900 to-blue-700 pt-24 pb-10">
+      <div className="bg-linear-to-r from-blue-900 to-blue-700 pt-24 pb-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <button onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 text-blue-200 hover:text-white text-sm mb-4 transition-colors">

@@ -16,13 +16,13 @@ function CasasContent() {
   const [erro, setErro] = useState("")
 
   useEffect(() => {
-    const bairroParam = searchParams.get("bairro")
-    if (bairroParam) {
-      aplicarFiltros({ bairro: bairroParam, tipo: "", preco_max: "" })
-    } else {
-      carregarCasas()
-    }
-  }, [])
+  const bairroParam = searchParams.get("bairro")
+  if (bairroParam) {
+    aplicarFiltros({ bairro: bairroParam, tipo: "", preco_max: "" })
+  } else {
+    carregarCasas()
+  }
+}, [searchParams]) 
 
   const carregarCasas = async () => {
     try {
@@ -66,7 +66,7 @@ function CasasContent() {
     <div>
       <Navbar />
       <div className="min-h-screen bg-gray-50">
-        <div className="bg-gradient-to-r from-blue-900 to-blue-700 pt-24 pb-12">
+        <div className="bg-linear-to-r from-blue-900 to-blue-700 pt-24 pb-12">
           <div className="max-w-6xl mx-auto px-4">
             <h1 className="text-4xl font-bold text-white mb-2">Casas Disponíveis</h1>
             <p className="text-blue-200">Encontra a casa perfeita para ti em Luanda</p>
@@ -77,11 +77,11 @@ function CasasContent() {
           <div className="mt-6">
             {erro && <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">{erro}</div>}
             {loading ? (
-              <div className="flex items-center justify-center min-h-[400px]">
+              <div className="flex items-center justify-center min-h-100">
                 <div className="text-xl text-gray-600">Carregando casas...</div>
               </div>
             ) : casas.length === 0 ? (
-              <div className="flex flex-col items-center justify-center min-h-[400px]">
+              <div className="flex flex-col items-center justify-center min-h-100">
                 <p className="text-gray-600">Nenhuma casa encontrada</p>
               </div>
             ) : (
