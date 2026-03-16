@@ -1,6 +1,7 @@
 // SEM "use client" aqui!
 import Providers from "./providers"
 import "./globals.css"
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
   title: "Casa Express",
@@ -17,6 +18,7 @@ export default function RootLayout({ children }) {
         <Providers>
           {children}
         </Providers>
+        <Analytics />
       </body>
     </html>
   )

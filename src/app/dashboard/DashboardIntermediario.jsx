@@ -1,5 +1,4 @@
 "use client"
-
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -9,9 +8,9 @@ import { visitasService } from "../../services/visitasService"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
-export default function Dashboard() {
+export default function DashboardIntermediario() {
   const router = useRouter()
-  const { user, logout, loading: authLoading } = useAuth()
+  const { user, logout } = useAuth()
 
   const [minhasCasas, setMinhasCasas] = useState([])
   const [minhasVisitas, setMinhasVisitas] = useState([])
@@ -20,10 +19,7 @@ export default function Dashboard() {
 
   const nomeUtilizador = user?.user_metadata?.nome || user?.email
 
-  useEffect(() => {
-  if (!authLoading && !user) router.push("/auth")
-  if (!authLoading && user) carregarDados()
-}, [authLoading, user]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { carregarDados() }, []) // eslint-disable-line
 
   const carregarDados = async () => {
     try {
@@ -32,11 +28,8 @@ export default function Dashboard() {
       setMinhasCasas(casas.filter((c) => c.usuario_id === user.id))
       const visitas = await visitasService.obterMinhasVisitas(user.id)
       setMinhasVisitas(visitas)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
+    } catch (err) { console.error(err) }
+    finally { setLoading(false) }
   }
 
   const deletarCasa = async (id) => {
@@ -52,12 +45,6 @@ export default function Dashboard() {
       catch { alert("Erro ao cancelar visita") }
     }
   }
-
-  if (authLoading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p className="text-gray-500">A verificar sessão...</p>
-    </div>
-  )
 
   return (
     <div>
@@ -82,7 +69,9 @@ export default function Dashboard() {
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center min-h-100"><p className="text-xl text-gray-600">Carregando...</p></div>
+            <div className="flex items-center justify-center min-h-40">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            </div>
           ) : aba === "casas" ? (
             <div>
               <div className="mb-6 flex justify-between items-center">
@@ -90,23 +79,17 @@ export default function Dashboard() {
                 <button onClick={() => router.push("/publicarCasa")} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Publicar Nova Casa</button>
               </div>
               {minhasCasas.length === 0 ? (
-                <div className="flex flex-col items-center justify-center min-h-100 bg-white rounded-lg">
-                  <p className="text-gray-600 mb-4">Ainda não publicaste nenhuma casa</p>
+                <div className="flex flex-col items-center justify-center min-h-40 bg-white rounded-xl border border-gray-100">
+                  <p className="text-gray-500 mb-4">Ainda não publicaste nenhuma casa</p>
                   <button onClick={() => router.push("/publicarCasa")} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Publicar Primeira Casa</button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {minhasCasas.map((casa) => (
-                    <div key={casa.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-                     {casa.imagem_url && (
-  <Image
-    src={casa.imagem_url}
-    alt={casa.titulo}
-    width={400}
-    height={192}
-    className="w-full h-48 object-cover"
-  />
-)}
+                    <div key={casa.id} className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+                      {casa.imagem_url && (
+                        <Image src={casa.imagem_url} alt={casa.titulo} width={400} height={192} className="w-full h-48 object-cover" />
+                      )}
                       <div className="p-4">
                         <h3 className="font-bold text-gray-800 mb-2">{casa.titulo}</h3>
                         <p className="text-blue-600 font-bold mb-3">{new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}/mês</p>
@@ -124,13 +107,13 @@ export default function Dashboard() {
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Minhas Visitas ({minhasVisitas.length})</h2>
               {minhasVisitas.length === 0 ? (
-                <div className="flex flex-col items-center justify-center min-h-100 bg-white rounded-lg">
-                  <p className="text-gray-600">Ainda não marcaste nenhuma visita</p>
+                <div className="flex flex-col items-center justify-center min-h-40 bg-white rounded-xl border border-gray-100">
+                  <p className="text-gray-500">Ainda não tens visitas agendadas</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {minhasVisitas.map((visita) => (
-                    <div key={visita.id} className="bg-white rounded-lg shadow p-6 flex justify-between items-center">
+                    <div key={visita.id} className="bg-white rounded-xl shadow p-6 flex justify-between items-center">
                       <div>
                         <h3 className="font-bold text-gray-800 mb-2">{visita.casas?.titulo || "Casa"}</h3>
                         <p className="text-gray-600 text-sm mb-1">Data: {new Date(visita.data_hora).toLocaleDateString("pt-AO")}</p>
