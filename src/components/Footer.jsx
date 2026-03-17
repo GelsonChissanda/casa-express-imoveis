@@ -90,7 +90,7 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-gray-500">© {new Date().getFullYear()} CasaExpress. Todos os direitos reservados.</p>
-          <p className="text-xs text-gray-500">Feito por <span className="text-blue-500 font-bold">Gelson Chissanda</span></p>
+          <p className="text-xs text-gray-500">Feito por <a href="https://www.linkedin.com/in/gelsonchissanda" target="_blank" rel="noopener noreferrer" className="text-blue-500 font-bold cursor-pointer">Gelson Chissanda</a></p>
         </div>
       </div>
     </footer>
