@@ -23,8 +23,8 @@ export default function Dashboard() {
       </div>
     </div>
   )
-
   if (role === "admin") return <DashboardAdmin />
   if (role === "intermediario") return <DashboardIntermediario />
   return <DashboardCliente />
 }
+

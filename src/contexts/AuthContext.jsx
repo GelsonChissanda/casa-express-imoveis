@@ -11,13 +11,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   const carregarRole = async (userId) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .single()
-    setRole(data?.role ?? 'cliente')
-  }
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .single()
+  console.log("carregarRole resultado:", data, error)
+  setRole(data?.role ?? 'cliente')
+}
 
   useEffect(() => {
     supabase.auth.getSession()
@@ -27,7 +28,6 @@ export function AuthProvider({ children }) {
         setLoading(false)
       })
       .catch((error) => {
-        console.error('Erro ao obter sessão:', error)
         setLoading(false)
       })
 
@@ -45,12 +45,12 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
-  const register = async (email, password, nome) => {
-    const { data, error } = await supabase.auth.signUp({
-      email, password, options: { data: { nome } }
-    })
-    return { data, error }
-  }
+  const register = async (email, password, nome, tipoConta) => {
+  const { data, error } = await supabase.auth.signUp({
+    email, password, options: { data: { nome, tipoConta } }
+  })
+  return { data, error }
+}
 
   const logout = async () => {
     await supabase.auth.signOut()

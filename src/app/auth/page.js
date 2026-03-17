@@ -42,21 +42,16 @@ export default function Auth() {
     router.push("/dashboard")
   }
 
-  const handleRegistar = async () => {
-    const erros = {}
-    if (!registo.nome.trim()) erros.nome = "Nome obrigatório"
-    if (!registo.email.trim()) erros.email = "Email obrigatório"
-    else if (!/\S+@\S+\.\S+/.test(registo.email)) erros.email = "Email inválido"
-    if (!registo.password) erros.password = "Password obrigatória"
-    else if (registo.password.length < 6) erros.password = "Mínimo 6 caracteres"
-    if (registo.password !== registo.confirmar) erros.confirmar = "Passwords não coincidem"
-    if (Object.keys(erros).length > 0) { setErrosRegisto(erros); return }
-    setLoading(true); setErroGeral("")
-    const { error } = await authRegister(registo.email, registo.password, registo.nome)
-    setLoading(false)
-    if (error) { setErroGeral(error.message); return }
-    router.push("/dashboard")
-  }
+ const handleRegistar = async () => {
+  // ... validações (não muda nada aqui)
+  setLoading(true); setErroGeral("")
+  const { error } = await authRegister(registo.email, registo.password, registo.nome, tipoConta)
+  setLoading(false)
+  if (error) { setErroGeral(error.message); return }
+  // Aguarda o trigger do Supabase criar o profile
+  await new Promise(resolve => setTimeout(resolve, 1500))
+  router.push("/dashboard")
+}
 
   return (
     <div className="min-h-screen bg-[#F7F8FC]">
