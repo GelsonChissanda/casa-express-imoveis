@@ -10,10 +10,10 @@ import { casasService } from "@/services/casasService"
 
 const bairros = [
   { nome: "Talatona", quantidade: 34, gradiente: "azul" },
-  { nome: "Miramar", quantidade: 21, gradiente: "ciano" },
+  { nome: "Nova Vida", quantidade: 21, gradiente: "ciano" },
   { nome: "Kilamba", quantidade: 28, gradiente: "indigo" },
-  { nome: "Alvalade", quantidade: 18, gradiente: "royal" },
-  { nome: "Maianga", quantidade: 19, gradiente: "escuro" },
+  { nome: "Zango", quantidade: 18, gradiente: "royal" },
+  { nome: "Golf 2", quantidade: 19, gradiente: "escuro" },
 ]
 
 export default function Home() {
