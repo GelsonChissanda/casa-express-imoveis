@@ -1,5 +1,5 @@
 "use client"
-
+ 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Navbar from "@/components/Navbar"
@@ -7,20 +7,16 @@ import Footer from "@/components/Footer"
 import CasaCard from "@/components/CasaCard"
 import AreaCard from "@/components/AreaCard"
 import { casasService } from "@/services/casasService"
-
-const bairros = [
-  { nome: "Talatona", quantidade: 34, gradiente: "azul" },
-  { nome: "Nova Vida", quantidade: 21, gradiente: "ciano" },
-  { nome: "Kilamba", quantidade: 28, gradiente: "indigo" },
-  { nome: "Zango", quantidade: 18, gradiente: "royal" },
-  { nome: "Golf 2", quantidade: 19, gradiente: "escuro" },
-]
-
+import { supabase } from "@/lib/supabaseClient"
+ 
+const gradientes = ["azul", "ciano", "indigo", "royal", "escuro"]
+ 
 export default function Home() {
   const [pesquisa, setPesquisa] = useState("")
   const [casasDestaque, setCasasDestaque] = useState([])
+  const [bairros, setBairros] = useState([])
   const router = useRouter()
-
+ 
   useEffect(() => {
     casasService
       .listarCasas()
@@ -28,17 +24,36 @@ export default function Home() {
         if (casas) setCasasDestaque(casas.slice(0, 6))
       })
       .catch(console.error)
+ 
+    async function carregarBairros() {
+      const { data } = await supabase.from("casas").select("bairro")
+      if (!data) return
+      const contagem = {}
+      data.forEach((casa) => {
+        if (casa.bairro) contagem[casa.bairro] = (contagem[casa.bairro] || 0) + 1
+      })
+      const bairrosArray = Object.entries(contagem)
+        .map(([nome, quantidade], i) => ({
+          nome,
+          quantidade,
+          gradiente: gradientes[i % gradientes.length],
+        }))
+        .sort((a, b) => b.quantidade - a.quantidade)
+        .slice(0, 5)
+      setBairros(bairrosArray)
+    }
+    carregarBairros()
   }, [])
-
+ 
   const handlePesquisar = () => {
     if (pesquisa.trim()) router.push(`/casas?bairro=${encodeURIComponent(pesquisa)}`)
     else router.push("/casas")
   }
-
+ 
   return (
     <div className="min-h-screen bg-[#F7F8FC]">
       <Navbar />
-
+ 
       <section className="relative bg-linear-to-br from-blue-900 via-blue-800 to-blue-600 pt-28 pb-20 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-64 h-64 border border-white rounded-full" />
@@ -46,7 +61,7 @@ export default function Home() {
           <div className="absolute bottom-10 right-10 w-80 h-80 border border-white rounded-full" />
           <div className="absolute bottom-20 right-20 w-48 h-48 border border-white rounded-full" />
         </div>
-
+ 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <span className="inline-block bg-white/20 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6 backdrop-blur-sm border border-white/30">
             🏙️ Plataforma nº1 de arrendamento em Luanda
@@ -58,7 +73,7 @@ export default function Home() {
           <p className="text-blue-100 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
             Milhares de casas para arrendar nos melhores bairros de Luanda. Seguro, rápido e gratuito.
           </p>
-
+ 
           <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-3">
             <div className="flex-1 relative">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +89,7 @@ export default function Home() {
               Pesquisar
             </button>
           </div>
-
+ 
           <div className="flex flex-wrap justify-center gap-8 mt-12">
             {[
               { valor: "120+", label: "Casas Disponíveis" },
@@ -90,7 +105,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+ 
       <section id="como-funciona" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
@@ -120,7 +135,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+ 
       <section className="py-20 bg-[#F7F8FC]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-10">
@@ -136,7 +151,7 @@ export default function Home() {
               </svg>
             </button>
           </div>
-
+ 
           {casasDestaque.length === 0 ? (
             <div className="text-center py-16 text-gray-400">
               <p className="text-lg">Ainda não há casas publicadas.</p>
@@ -152,7 +167,7 @@ export default function Home() {
               ))}
             </div>
           )}
-
+ 
           <div className="text-center mt-8 sm:hidden">
             <button onClick={() => router.push("/casas")}
               className="px-6 py-3 text-sm font-bold text-blue-800 border-2 border-blue-800 rounded-xl hover:bg-blue-800 hover:text-white transition-colors">
@@ -161,7 +176,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+ 
       <section id="bairros" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -176,7 +191,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+ 
       <section className="py-20 bg-[#F7F8FC]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-linear-to-r from-blue-900 to-blue-700 rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden">
@@ -202,7 +217,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+ 
       <Footer />
     </div>
   )

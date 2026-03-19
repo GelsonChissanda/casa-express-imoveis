@@ -11,12 +11,28 @@ export const visitasService = {
   },
 
   async obterMinhasVisitas(usuarioId) {
-    const { data, error } = await supabase
+    const { data: visitas, error } = await supabase
       .from('visitas')
       .select('*, casas(*)')
       .eq('usuario_id', usuarioId)
     if (error) throw error
-    return data
+    return visitas
+  },
+
+  async obterTodasVisitas() {
+    const { data: visitas, error } = await supabase
+      .from('visitas')
+      .select('*, casas(titulo)')
+    if (error) throw error
+    const userIds = [...new Set(visitas.map(v => v.usuario_id))]
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, nome, email')
+      .in('id', userIds)
+    return visitas.map(v => ({
+      ...v,
+      profiles: profiles?.find(p => p.id === v.usuario_id) || null
+    }))
   },
 
   async cancelarVisita(id) {

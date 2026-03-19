@@ -22,7 +22,6 @@ export default function DashboardAdmin() {
  
   useEffect(() => { carregarDados() }, [])
  
-  // ✅ CORRIGIDO: busca email e nome directamente da tabela profiles
   const carregarDados = async () => {
     try {
       setLoading(true)
@@ -31,7 +30,6 @@ export default function DashboardAdmin() {
       setTodasCasas(casas)
  
       const visitas = await visitasService.obterTodasVisitas?.() || []
-      setTodasVisitas(visitas)
  
       const { data: profiles, error } = await supabase
         .from("profiles")
@@ -96,7 +94,7 @@ export default function DashboardAdmin() {
       <div className="min-h-screen bg-gray-50">
  
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-900 to-blue-700 pt-24 pb-12">
+        <div className="bg-linear-to-r from-blue-900 to-blue-700 pt-24 pb-12">
           <div className="max-w-6xl mx-auto px-4">
             <div className="flex justify-between items-center">
               <div>
@@ -187,7 +185,6 @@ export default function DashboardAdmin() {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800 mb-6">Todos os Utilizadores</h2>
  
-                  {/* Tabela — só em ecrãs grandes */}
                   <div className="hidden md:block bg-white rounded-xl shadow overflow-hidden">
                     <table className="w-full text-sm">
                       <thead className="bg-blue-900 text-white">
@@ -227,7 +224,6 @@ export default function DashboardAdmin() {
                     </table>
                   </div>
  
-                  {/* Cards — só no mobile */}
                   <div className="md:hidden space-y-3">
                     {utilizadores.length === 0 ? (
                       <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">Nenhum utilizador encontrado</div>
@@ -262,7 +258,6 @@ export default function DashboardAdmin() {
                     <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">Nenhuma casa encontrada</div>
                   ) : (
                     <>
-                      {/* Tabela — só em ecrãs grandes */}
                       <div className="hidden md:block bg-white rounded-xl shadow overflow-hidden">
                         <table className="w-full text-sm">
                           <thead className="bg-blue-900 text-white">
@@ -293,7 +288,6 @@ export default function DashboardAdmin() {
                         </table>
                       </div>
  
-                      {/* Cards — só no mobile */}
                       <div className="md:hidden space-y-3">
                         {todasCasas.map((casa) => (
                           <div key={casa.id} className="bg-white rounded-xl shadow p-4">
@@ -324,12 +318,13 @@ export default function DashboardAdmin() {
                     </div>
                   ) : (
                     <>
-                      {/* Tabela — só em ecrãs grandes */}
+                      {/* Tabela desktop */}
                       <div className="hidden md:block bg-white rounded-xl shadow overflow-hidden">
                         <table className="w-full text-sm">
                           <thead className="bg-blue-900 text-white">
                             <tr>
                               <th className="text-left px-6 py-4 font-semibold">Casa</th>
+                              <th className="text-left px-6 py-4 font-semibold">Pessoa</th>
                               <th className="text-left px-6 py-4 font-semibold">Data</th>
                               <th className="text-left px-6 py-4 font-semibold">Hora</th>
                               <th className="text-left px-6 py-4 font-semibold">Estado</th>
@@ -339,6 +334,7 @@ export default function DashboardAdmin() {
                             {todasVisitas.map((visita, i) => (
                               <tr key={visita.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                                 <td className="px-6 py-4 font-medium text-gray-800">{visita.casas?.titulo || "—"}</td>
+                                <td className="px-6 py-4 text-gray-600">{visita.profiles?.nome || "—"}</td>
                                 <td className="px-6 py-4 text-gray-600">{new Date(visita.data_hora).toLocaleDateString("pt-AO")}</td>
                                 <td className="px-6 py-4 text-gray-600">{new Date(visita.data_hora).toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })}</td>
                                 <td className="px-6 py-4">
@@ -352,11 +348,12 @@ export default function DashboardAdmin() {
                         </table>
                       </div>
  
-                      {/* Cards — só no mobile */}
+                      {/* Cards mobile */}
                       <div className="md:hidden space-y-3">
                         {todasVisitas.map((visita) => (
                           <div key={visita.id} className="bg-white rounded-xl shadow p-4">
                             <h3 className="font-bold text-gray-800 mb-1">{visita.casas?.titulo || "—"}</h3>
+                            <p className="text-gray-600 text-sm mb-1">👤 {visita.profiles?.nome || "—"}</p>
                             <p className="text-gray-500 text-sm">
                               📅 {new Date(visita.data_hora).toLocaleDateString("pt-AO")} às {new Date(visita.data_hora).toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })}
                             </p>
