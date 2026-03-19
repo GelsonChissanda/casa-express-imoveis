@@ -7,22 +7,22 @@ import { visitasService } from "../../services/visitasService"
 import { supabase } from "../../lib/supabaseClient"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
-
+ 
 export default function DashboardAdmin() {
   const router = useRouter()
   const { user, logout } = useAuth()
-
+ 
   const [utilizadores, setUtilizadores] = useState([])
   const [todasCasas, setTodasCasas] = useState([])
   const [todasVisitas, setTodasVisitas] = useState([])
   const [loading, setLoading] = useState(false)
   const [aba, setAba] = useState("visao")
   const [roleEditando, setRoleEditando] = useState({})
-
+ 
   const nomeUtilizador = user?.user_metadata?.nome || user?.email
-
+ 
   useEffect(() => { carregarDados() }, []) 
-
+ 
   const carregarDados = async () => {
     try {
       setLoading(true)
@@ -32,7 +32,6 @@ export default function DashboardAdmin() {
       setTodasVisitas(visitas)
       const { data: profiles } = await supabase.from("profiles").select("id, role")
       const { data: { users } } = await supabase.auth.admin?.listUsers() || { data: { users: [] } }
-      // Combina profiles com metadata
       const utilizadoresComRole = (profiles || []).map(p => ({
         id: p.id,
         role: p.role,
@@ -43,45 +42,45 @@ export default function DashboardAdmin() {
     } catch (err) { console.error(err) }
     finally { setLoading(false) }
   }
-
+ 
   const mudarRole = async (userId, novoRole) => {
     try {
       await supabase.from("profiles").update({ role: novoRole }).eq("id", userId)
       setUtilizadores(prev => prev.map(u => u.id === userId ? { ...u, role: novoRole } : u))
     } catch { alert("Erro ao atualizar role") }
   }
-
+ 
   const deletarCasa = async (id) => {
     if (confirm("Tens a certeza que queres deletar esta casa?")) {
       try { await casasService.deletarCasa(id); carregarDados() }
       catch { alert("Erro ao deletar") }
     }
   }
-
+ 
   const estatisticas = [
     { label: "Total de Utilizadores", valor: utilizadores.length, cor: "from-blue-500 to-blue-700", emoji: "👥" },
     { label: "Casas Publicadas", valor: todasCasas.length, cor: "from-blue-700 to-blue-900", emoji: "🏠" },
     { label: "Visitas Totais", valor: todasVisitas.length, cor: "from-blue-400 to-blue-600", emoji: "📅" },
     { label: "Intermediários", valor: utilizadores.filter(u => u.role === "intermediario").length, cor: "from-blue-800 to-blue-950", emoji: "🤝" },
   ]
-
+ 
   const abas = [
     { id: "visao", label: "Visão Geral" },
     { id: "utilizadores", label: `Utilizadores (${utilizadores.length})` },
     { id: "casas", label: `Casas (${todasCasas.length})` },
     { id: "visitas", label: `Visitas (${todasVisitas.length})` },
   ]
-
+ 
   const badgeRole = (role) => {
     const map = { admin: "bg-red-100 text-red-700", intermediario: "bg-blue-100 text-blue-700", cliente: "bg-green-100 text-green-700" }
     return map[role] || "bg-gray-100 text-gray-700"
   }
-
+ 
   return (
     <div>
       <Navbar />
       <div className="min-h-screen bg-gray-50">
-
+ 
         {/* Header */}
         <div className="bg-linear-to-r from-blue-900 to-blue-700 pt-24 pb-12">
           <div className="max-w-6xl mx-auto px-4">
@@ -93,7 +92,7 @@ export default function DashboardAdmin() {
               </div>
               <button onClick={() => logout().then(() => router.push("/"))} className="px-6 py-2 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition">Sair</button>
             </div>
-
+ 
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
               {estatisticas.map((stat) => (
@@ -106,9 +105,9 @@ export default function DashboardAdmin() {
             </div>
           </div>
         </div>
-
+ 
         <div className="max-w-6xl mx-auto px-4 py-10">
-
+ 
           {/* Tabs */}
           <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
             {abas.map((a) => (
@@ -118,7 +117,7 @@ export default function DashboardAdmin() {
               </button>
             ))}
           </div>
-
+ 
           {loading ? (
             <div className="flex items-center justify-center min-h-40">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -157,12 +156,14 @@ export default function DashboardAdmin() {
                   </div>
                 </div>
               )}
-
+ 
               {/* ABA: Utilizadores */}
               {aba === "utilizadores" && (
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800 mb-6">Todos os Utilizadores</h2>
-                  <div className="bg-white rounded-xl shadow overflow-hidden">
+ 
+                  {/* Tabela — só em ecrãs grandes */}
+                  <div className="hidden md:block bg-white rounded-xl shadow overflow-hidden">
                     <table className="w-full text-sm">
                       <thead className="bg-blue-900 text-white">
                         <tr>
@@ -183,11 +184,8 @@ export default function DashboardAdmin() {
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeRole(u.role)}`}>{u.role}</span>
                             </td>
                             <td className="px-6 py-4">
-                              <select
-                                value={u.role}
-                                onChange={e => mudarRole(u.id, e.target.value)}
-                                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              >
+                              <select value={u.role} onChange={e => mudarRole(u.id, e.target.value)}
+                                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="cliente">cliente</option>
                                 <option value="intermediario">intermediario</option>
                                 <option value="admin">admin</option>
@@ -198,45 +196,87 @@ export default function DashboardAdmin() {
                       </tbody>
                     </table>
                   </div>
+ 
+                  {/* Cards — só no mobile */}
+                  <div className="md:hidden space-y-3">
+                    {utilizadores.length === 0 ? (
+                      <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">Nenhum utilizador encontrado</div>
+                    ) : utilizadores.map((u) => (
+                      <div key={u.id} className="bg-white rounded-xl shadow p-4">
+                        <p className="font-bold text-gray-800">{u.nome}</p>
+                        <p className="text-gray-500 text-sm mb-2">{u.email}</p>
+                        <div className="flex items-center justify-between">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeRole(u.role)}`}>{u.role}</span>
+                          <select value={u.role} onChange={e => mudarRole(u.id, e.target.value)}
+                            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="cliente">cliente</option>
+                            <option value="intermediario">intermediario</option>
+                            <option value="admin">admin</option>
+                          </select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
-
+ 
               {/* ABA: Casas */}
               {aba === "casas" && (
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800 mb-6">Todas as Casas</h2>
-                  <div className="bg-white rounded-xl shadow overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-blue-900 text-white">
-                        <tr>
-                          <th className="text-left px-6 py-4 font-semibold">Título</th>
-                          <th className="text-left px-6 py-4 font-semibold">Localização</th>
-                          <th className="text-left px-6 py-4 font-semibold">Preço</th>
-                          <th className="text-left px-6 py-4 font-semibold">Ações</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {todasCasas.length === 0 ? (
-                          <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Nenhuma casa encontrada</td></tr>
-                        ) : todasCasas.map((casa, i) => (
-                          <tr key={casa.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                            <td className="px-6 py-4 font-medium text-gray-800">{casa.titulo}</td>
-                            <td className="px-6 py-4 text-gray-600">{casa.localizacao || "—"}</td>
-                            <td className="px-6 py-4 font-semibold text-blue-600">{new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}</td>
-                            <td className="px-6 py-4">
-                              <div className="flex gap-2">
-                                <button onClick={() => router.push(`/casas/${casa.id}`)} className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 text-xs">Ver</button>
-                                <button onClick={() => deletarCasa(casa.id)} className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-xs">Deletar</button>
-                              </div>
-                            </td>
-                          </tr>
+ 
+                  {todasCasas.length === 0 ? (
+                    <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">Nenhuma casa encontrada</div>
+                  ) : (
+                    <>
+                      {/* Tabela — só em ecrãs grandes */}
+                      <div className="hidden md:block bg-white rounded-xl shadow overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead className="bg-blue-900 text-white">
+                            <tr>
+                              <th className="text-left px-6 py-4 font-semibold">Título</th>
+                              <th className="text-left px-6 py-4 font-semibold">Localização</th>
+                              <th className="text-left px-6 py-4 font-semibold">Preço</th>
+                              <th className="text-left px-6 py-4 font-semibold">Ações</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {todasCasas.map((casa, i) => (
+                              <tr key={casa.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                <td className="px-6 py-4 font-medium text-gray-800">{casa.titulo}</td>
+                                <td className="px-6 py-4 text-gray-600">{casa.localizacao || "—"}</td>
+                                <td className="px-6 py-4 font-semibold text-blue-600">{new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}</td>
+                                <td className="px-6 py-4">
+                                  <div className="flex gap-2">
+                                    <button onClick={() => router.push(`/casas/${casa.id}`)} className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 text-xs">Ver</button>
+                                    <button onClick={() => deletarCasa(casa.id)} className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-xs">Deletar</button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+ 
+                      {/* Cards — só no mobile */}
+                      <div className="md:hidden space-y-3">
+                        {todasCasas.map((casa) => (
+                          <div key={casa.id} className="bg-white rounded-xl shadow p-4">
+                            <h3 className="font-bold text-gray-800 mb-1">{casa.titulo}</h3>
+                            <p className="text-gray-500 text-sm mb-1">📍 {casa.localizacao || "—"}</p>
+                            <p className="text-blue-600 font-bold mb-3">{new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}</p>
+                            <div className="flex gap-2">
+                              <button onClick={() => router.push(`/casas/${casa.id}`)} className="flex-1 py-2 bg-blue-100 text-blue-600 rounded-lg text-sm font-medium">Ver</button>
+                              <button onClick={() => deletarCasa(casa.id)} className="flex-1 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-medium">Deletar</button>
+                            </div>
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
-
+ 
               {/* ABA: Visitas */}
               {aba === "visitas" && (
                 <div>
@@ -246,30 +286,46 @@ export default function DashboardAdmin() {
                       <p className="text-gray-400">Nenhuma visita registada</p>
                     </div>
                   ) : (
-                    <div className="bg-white rounded-xl shadow overflow-hidden">
-                      <table className="w-full text-sm">
-                        <thead className="bg-blue-900 text-white">
-                          <tr>
-                            <th className="text-left px-6 py-4 font-semibold">Casa</th>
-                            <th className="text-left px-6 py-4 font-semibold">Data</th>
-                            <th className="text-left px-6 py-4 font-semibold">Hora</th>
-                            <th className="text-left px-6 py-4 font-semibold">Estado</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {todasVisitas.map((visita, i) => (
-                            <tr key={visita.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                              <td className="px-6 py-4 font-medium text-gray-800">{visita.casas?.titulo || "—"}</td>
-                              <td className="px-6 py-4 text-gray-600">{new Date(visita.data_hora).toLocaleDateString("pt-AO")}</td>
-                              <td className="px-6 py-4 text-gray-600">{new Date(visita.data_hora).toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })}</td>
-                              <td className="px-6 py-4">
-                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${visita.status === "agendada" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>{visita.status}</span>
-                              </td>
+                    <>
+                      {/* Tabela — só em ecrãs grandes */}
+                      <div className="hidden md:block bg-white rounded-xl shadow overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead className="bg-blue-900 text-white">
+                            <tr>
+                              <th className="text-left px-6 py-4 font-semibold">Casa</th>
+                              <th className="text-left px-6 py-4 font-semibold">Data</th>
+                              <th className="text-left px-6 py-4 font-semibold">Hora</th>
+                              <th className="text-left px-6 py-4 font-semibold">Estado</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody>
+                            {todasVisitas.map((visita, i) => (
+                              <tr key={visita.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                <td className="px-6 py-4 font-medium text-gray-800">{visita.casas?.titulo || "—"}</td>
+                                <td className="px-6 py-4 text-gray-600">{new Date(visita.data_hora).toLocaleDateString("pt-AO")}</td>
+                                <td className="px-6 py-4 text-gray-600">{new Date(visita.data_hora).toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })}</td>
+                                <td className="px-6 py-4">
+                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${visita.status === "agendada" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>{visita.status}</span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+ 
+                      {/* Cards — só no mobile */}
+                      <div className="md:hidden space-y-3">
+                        {todasVisitas.map((visita) => (
+                          <div key={visita.id} className="bg-white rounded-xl shadow p-4">
+                            <h3 className="font-bold text-gray-800 mb-1">{visita.casas?.titulo || "—"}</h3>
+                            <p className="text-gray-500 text-sm">📅 {new Date(visita.data_hora).toLocaleDateString("pt-AO")} às {new Date(visita.data_hora).toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })}</p>
+                            <div className="mt-2">
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${visita.status === "agendada" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>{visita.status}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
               )}
