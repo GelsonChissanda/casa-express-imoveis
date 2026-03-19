@@ -17,51 +17,61 @@ export default function DashboardAdmin() {
   const [todasVisitas, setTodasVisitas] = useState([])
   const [loading, setLoading] = useState(false)
   const [aba, setAba] = useState("visao")
-  const [roleEditando, setRoleEditando] = useState({})
  
   const nomeUtilizador = user?.user_metadata?.nome || user?.email
  
-  useEffect(() => { carregarDados() }, []) 
+  useEffect(() => { carregarDados() }, [])
  
+  // ✅ CORRIGIDO: busca email e nome directamente da tabela profiles
   const carregarDados = async () => {
     try {
       setLoading(true)
+ 
       const casas = await casasService.listarCasas()
       setTodasCasas(casas)
+ 
       const visitas = await visitasService.obterTodasVisitas?.() || []
       setTodasVisitas(visitas)
-      const { data: profiles } = await supabase.from("profiles").select("id, role")
-      const { data: { users } } = await supabase.auth.admin?.listUsers() || { data: { users: [] } }
-      const utilizadoresComRole = (profiles || []).map(p => ({
-        id: p.id,
-        role: p.role,
-        email: users?.find(u => u.id === p.id)?.email || "—",
-        nome: users?.find(u => u.id === p.id)?.user_metadata?.nome || "—",
-      }))
-      setUtilizadores(utilizadoresComRole)
-    } catch (err) { console.error(err) }
-    finally { setLoading(false) }
+ 
+      const { data: profiles, error } = await supabase
+        .from("profiles")
+        .select("id, role, email, nome")
+ 
+      if (error) throw error
+      setUtilizadores(profiles || [])
+ 
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   }
  
   const mudarRole = async (userId, novoRole) => {
     try {
       await supabase.from("profiles").update({ role: novoRole }).eq("id", userId)
       setUtilizadores(prev => prev.map(u => u.id === userId ? { ...u, role: novoRole } : u))
-    } catch { alert("Erro ao atualizar role") }
+    } catch {
+      alert("Erro ao atualizar role")
+    }
   }
  
   const deletarCasa = async (id) => {
     if (confirm("Tens a certeza que queres deletar esta casa?")) {
-      try { await casasService.deletarCasa(id); carregarDados() }
-      catch { alert("Erro ao deletar") }
+      try {
+        await casasService.deletarCasa(id)
+        carregarDados()
+      } catch {
+        alert("Erro ao deletar")
+      }
     }
   }
  
   const estatisticas = [
-    { label: "Total de Utilizadores", valor: utilizadores.length, cor: "from-blue-500 to-blue-700", emoji: "👥" },
-    { label: "Casas Publicadas", valor: todasCasas.length, cor: "from-blue-700 to-blue-900", emoji: "🏠" },
-    { label: "Visitas Totais", valor: todasVisitas.length, cor: "from-blue-400 to-blue-600", emoji: "📅" },
-    { label: "Intermediários", valor: utilizadores.filter(u => u.role === "intermediario").length, cor: "from-blue-800 to-blue-950", emoji: "🤝" },
+    { label: "Total de Utilizadores", valor: utilizadores.length, emoji: "👥" },
+    { label: "Casas Publicadas", valor: todasCasas.length, emoji: "🏠" },
+    { label: "Visitas Totais", valor: todasVisitas.length, emoji: "📅" },
+    { label: "Intermediários", valor: utilizadores.filter(u => u.role === "intermediario").length, emoji: "🤝" },
   ]
  
   const abas = [
@@ -72,7 +82,11 @@ export default function DashboardAdmin() {
   ]
  
   const badgeRole = (role) => {
-    const map = { admin: "bg-red-100 text-red-700", intermediario: "bg-blue-100 text-blue-700", cliente: "bg-green-100 text-green-700" }
+    const map = {
+      admin: "bg-red-100 text-red-700",
+      intermediario: "bg-blue-100 text-blue-700",
+      cliente: "bg-green-100 text-green-700"
+    }
     return map[role] || "bg-gray-100 text-gray-700"
   }
  
@@ -82,7 +96,7 @@ export default function DashboardAdmin() {
       <div className="min-h-screen bg-gray-50">
  
         {/* Header */}
-        <div className="bg-linear-to-r from-blue-900 to-blue-700 pt-24 pb-12">
+        <div className="bg-gradient-to-r from-blue-900 to-blue-700 pt-24 pb-12">
           <div className="max-w-6xl mx-auto px-4">
             <div className="flex justify-between items-center">
               <div>
@@ -90,7 +104,12 @@ export default function DashboardAdmin() {
                 <h1 className="text-4xl font-bold text-white mb-2">Olá, {nomeUtilizador}!</h1>
                 <p className="text-blue-200">Gestão completa da plataforma</p>
               </div>
-              <button onClick={() => logout().then(() => router.push("/"))} className="px-6 py-2 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition">Sair</button>
+              <button
+                onClick={() => logout().then(() => router.push("/"))}
+                className="px-6 py-2 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition"
+              >
+                Sair
+              </button>
             </div>
  
             {/* Stats */}
@@ -111,8 +130,11 @@ export default function DashboardAdmin() {
           {/* Tabs */}
           <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
             {abas.map((a) => (
-              <button key={a.id} onClick={() => setAba(a.id)}
-                className={`pb-4 px-2 font-semibold text-sm whitespace-nowrap transition ${aba === a.id ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}>
+              <button
+                key={a.id}
+                onClick={() => setAba(a.id)}
+                className={`pb-4 px-2 font-semibold text-sm whitespace-nowrap transition ${aba === a.id ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+              >
                 {a.label}
               </button>
             ))}
@@ -145,12 +167,15 @@ export default function DashboardAdmin() {
                       )
                     })}
                   </div>
+ 
                   <div className="bg-white rounded-xl shadow p-6">
                     <h3 className="font-bold text-gray-800 mb-4 text-lg">Casas Recentes</h3>
                     {todasCasas.slice(0, 5).map(casa => (
                       <div key={casa.id} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
                         <span className="text-sm text-gray-700 truncate max-w-[60%]">{casa.titulo}</span>
-                        <span className="text-xs font-semibold text-blue-600">{new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}</span>
+                        <span className="text-xs font-semibold text-blue-600">
+                          {new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -175,17 +200,22 @@ export default function DashboardAdmin() {
                       </thead>
                       <tbody>
                         {utilizadores.length === 0 ? (
-                          <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Nenhum utilizador encontrado</td></tr>
+                          <tr>
+                            <td colSpan={4} className="px-6 py-8 text-center text-gray-400">Nenhum utilizador encontrado</td>
+                          </tr>
                         ) : utilizadores.map((u, i) => (
                           <tr key={u.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                            <td className="px-6 py-4 font-medium text-gray-800">{u.nome}</td>
-                            <td className="px-6 py-4 text-gray-600">{u.email}</td>
+                            <td className="px-6 py-4 font-medium text-gray-800">{u.nome || "—"}</td>
+                            <td className="px-6 py-4 text-gray-600">{u.email || "—"}</td>
                             <td className="px-6 py-4">
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeRole(u.role)}`}>{u.role}</span>
                             </td>
                             <td className="px-6 py-4">
-                              <select value={u.role} onChange={e => mudarRole(u.id, e.target.value)}
-                                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                              <select
+                                value={u.role}
+                                onChange={e => mudarRole(u.id, e.target.value)}
+                                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              >
                                 <option value="cliente">cliente</option>
                                 <option value="intermediario">intermediario</option>
                                 <option value="admin">admin</option>
@@ -203,12 +233,15 @@ export default function DashboardAdmin() {
                       <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">Nenhum utilizador encontrado</div>
                     ) : utilizadores.map((u) => (
                       <div key={u.id} className="bg-white rounded-xl shadow p-4">
-                        <p className="font-bold text-gray-800">{u.nome}</p>
-                        <p className="text-gray-500 text-sm mb-2">{u.email}</p>
+                        <p className="font-bold text-gray-800">{u.nome || "—"}</p>
+                        <p className="text-gray-500 text-sm mb-2">{u.email || "—"}</p>
                         <div className="flex items-center justify-between">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeRole(u.role)}`}>{u.role}</span>
-                          <select value={u.role} onChange={e => mudarRole(u.id, e.target.value)}
-                            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                          <select
+                            value={u.role}
+                            onChange={e => mudarRole(u.id, e.target.value)}
+                            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
                             <option value="cliente">cliente</option>
                             <option value="intermediario">intermediario</option>
                             <option value="admin">admin</option>
@@ -235,7 +268,7 @@ export default function DashboardAdmin() {
                           <thead className="bg-blue-900 text-white">
                             <tr>
                               <th className="text-left px-6 py-4 font-semibold">Título</th>
-                              <th className="text-left px-6 py-4 font-semibold">Localização</th>
+                              <th className="text-left px-6 py-4 font-semibold">Bairro</th>
                               <th className="text-left px-6 py-4 font-semibold">Preço</th>
                               <th className="text-left px-6 py-4 font-semibold">Ações</th>
                             </tr>
@@ -244,8 +277,10 @@ export default function DashboardAdmin() {
                             {todasCasas.map((casa, i) => (
                               <tr key={casa.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                                 <td className="px-6 py-4 font-medium text-gray-800">{casa.titulo}</td>
-                                <td className="px-6 py-4 text-gray-600">{casa.localizacao || "—"}</td>
-                                <td className="px-6 py-4 font-semibold text-blue-600">{new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}</td>
+                                <td className="px-6 py-4 text-gray-600">{casa.bairro || "—"}</td>
+                                <td className="px-6 py-4 font-semibold text-blue-600">
+                                  {new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}
+                                </td>
                                 <td className="px-6 py-4">
                                   <div className="flex gap-2">
                                     <button onClick={() => router.push(`/casas/${casa.id}`)} className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 text-xs">Ver</button>
@@ -263,8 +298,10 @@ export default function DashboardAdmin() {
                         {todasCasas.map((casa) => (
                           <div key={casa.id} className="bg-white rounded-xl shadow p-4">
                             <h3 className="font-bold text-gray-800 mb-1">{casa.titulo}</h3>
-                            <p className="text-gray-500 text-sm mb-1">📍 {casa.localizacao || "—"}</p>
-                            <p className="text-blue-600 font-bold mb-3">{new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}</p>
+                            <p className="text-gray-500 text-sm mb-1">📍 {casa.bairro || "—"}</p>
+                            <p className="text-blue-600 font-bold mb-3">
+                              {new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(casa.preco)}
+                            </p>
                             <div className="flex gap-2">
                               <button onClick={() => router.push(`/casas/${casa.id}`)} className="flex-1 py-2 bg-blue-100 text-blue-600 rounded-lg text-sm font-medium">Ver</button>
                               <button onClick={() => deletarCasa(casa.id)} className="flex-1 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-medium">Deletar</button>
@@ -305,7 +342,9 @@ export default function DashboardAdmin() {
                                 <td className="px-6 py-4 text-gray-600">{new Date(visita.data_hora).toLocaleDateString("pt-AO")}</td>
                                 <td className="px-6 py-4 text-gray-600">{new Date(visita.data_hora).toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })}</td>
                                 <td className="px-6 py-4">
-                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${visita.status === "agendada" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>{visita.status}</span>
+                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${visita.status === "agendada" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                                    {visita.status}
+                                  </span>
                                 </td>
                               </tr>
                             ))}
@@ -318,9 +357,13 @@ export default function DashboardAdmin() {
                         {todasVisitas.map((visita) => (
                           <div key={visita.id} className="bg-white rounded-xl shadow p-4">
                             <h3 className="font-bold text-gray-800 mb-1">{visita.casas?.titulo || "—"}</h3>
-                            <p className="text-gray-500 text-sm">📅 {new Date(visita.data_hora).toLocaleDateString("pt-AO")} às {new Date(visita.data_hora).toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })}</p>
+                            <p className="text-gray-500 text-sm">
+                              📅 {new Date(visita.data_hora).toLocaleDateString("pt-AO")} às {new Date(visita.data_hora).toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })}
+                            </p>
                             <div className="mt-2">
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${visita.status === "agendada" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>{visita.status}</span>
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${visita.status === "agendada" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                                {visita.status}
+                              </span>
                             </div>
                           </div>
                         ))}
