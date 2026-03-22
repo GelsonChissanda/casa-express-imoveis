@@ -4,10 +4,20 @@ import "./globals.css"
 import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
-  title: "Casa Express",
-  description: "Plataforma de arrendamento em Luanda",
-  icons: {
-    icon: "data:image/svg+xml,...",
+  title: "CasaExpress — Arrendamento de Casas em Luanda",
+  description: "Encontra casas para arrendar em Luanda. Talatona, Kilamba, Miramar e mais. Seguro, rápido e gratuito.",
+  keywords: "casas arrendamento Luanda, alugar casa Angola, imóveis Luanda, Talatona, Kilamba",
+  openGraph: {
+    title: "CasaExpress — Arrendamento de Casas em Luanda",
+    description: "Encontra casas para arrendar em Luanda. Seguro, rápido e gratuito.",
+    url: "https://casaexpress.vercel.app",
+    siteName: "CasaExpress",
+    locale: "pt_AO",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 
