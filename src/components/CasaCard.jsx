@@ -1,32 +1,32 @@
 "use client"
-
+ 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import image from "next/image"
-
-export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho, banheiros, badge, id, imagem_url }) {
+ 
+export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho, banheiros, badge, id, imagem_url, imagens_urls }) {
   const [favorito, setFavorito] = useState(false)
   const router = useRouter()
-
+ 
   const wc = casasDeBanho ?? banheiros ?? 0
-
+  const foto = imagens_urls?.[0] || imagem_url
+ 
   const formatarPreco = (valor) =>
     new Intl.NumberFormat("pt-AO").format(valor) + " Kz/mês"
-
+ 
   const badgeEstilo = {
     Novo: "bg-green-500 text-white",
     Destaque: "bg-yellow-400 text-yellow-900",
     Popular: "bg-blue-600 text-white",
   }
-
+ 
   return (
     <div
       onClick={() => router.push(`/casas/${id}`)}
       className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group border border-gray-100 hover:-translate-y-1"
     >
       <div className="relative h-48 bg-linear-to-br from-blue-800 to-blue-500 flex items-center justify-center overflow-hidden">
-        {imagem_url ? (
-          <image src={imagem_url} alt={titulo} className="w-full h-full object-cover" />
+        {foto ? (
+          <img src={foto} alt={titulo} className="w-full h-full object-cover" />
         ) : (
           <>
             <div className="absolute inset-0 opacity-20">
@@ -41,13 +41,13 @@ export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho,
             </div>
           </>
         )}
-
+ 
         {badge && (
           <span className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${badgeEstilo[badge] || "bg-gray-500 text-white"}`}>
             {badge}
           </span>
         )}
-
+ 
         <button
           onClick={(e) => { e.stopPropagation(); setFavorito(!favorito) }}
           className="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-sm"
@@ -62,7 +62,7 @@ export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho,
           </svg>
         </button>
       </div>
-
+ 
       <div className="p-4">
         <div className="flex items-center gap-1 text-blue-600 text-xs font-semibold mb-1">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -70,11 +70,11 @@ export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho,
           </svg>
           {bairro}
         </div>
-
+ 
         <h3 className="font-semibold text-gray-800 text-sm mb-3 line-clamp-2 group-hover:text-blue-800 transition-colors">
           {titulo}
         </h3>
-
+ 
         <div className="flex items-center gap-3 text-gray-500 text-xs mb-3">
           <span className="flex items-center gap-1">
             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -90,7 +90,7 @@ export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho,
             {wc} WC
           </span>
         </div>
-
+ 
         <div className="flex items-center justify-between">
           <span className="text-blue-800 font-bold text-base">{formatarPreco(preco)}</span>
           <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded-lg group-hover:bg-blue-100 transition-colors">
@@ -101,3 +101,4 @@ export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho,
     </div>
   )
 }
+ 
