@@ -14,6 +14,7 @@ export default function CasaDetalhe() {
   const [casa, setCasa] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [fotoAtiva, setFotoAtiva] = useState(0);
 
   useEffect(() => {
     carregarCasa();
@@ -62,6 +63,23 @@ export default function CasaDetalhe() {
     );
   }
 
+  // Monta a lista de imagens — usa imagens_urls se existir, senão usa imagem_url
+  const imagens = casa.imagens_urls?.length > 0
+    ? casa.imagens_urls
+    : casa.imagem_url
+    ? [casa.imagem_url]
+    : []
+
+  const irParaAnterior = (e) => {
+    e.stopPropagation()
+    setFotoAtiva((prev) => (prev === 0 ? imagens.length - 1 : prev - 1))
+  }
+
+  const irParaProxima = (e) => {
+    e.stopPropagation()
+    setFotoAtiva((prev) => (prev === imagens.length - 1 ? 0 : prev + 1))
+  }
+
   return (
     <div>
       <Navbar />
@@ -71,38 +89,82 @@ export default function CasaDetalhe() {
             onClick={() => router.push("/casas")}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Voltar
           </button>
 
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-            {casa.imagem_url && (
-              <div className="w-full h-96 overflow-hidden">
+
+            {/* ✅ CARROSSEL */}
+            {imagens.length > 0 && (
+              <div className="relative w-full h-96 overflow-hidden bg-gray-100">
+                {/* Imagem activa */}
                 <img
-                  src={casa.imagem_url}
-                  alt={casa.titulo}
-                  className="w-full h-full object-cover"
+                  src={imagens[fotoAtiva]}
+                  alt={`${casa.titulo} - foto ${fotoAtiva + 1}`}
+                  className="w-full h-full object-cover transition-opacity duration-300"
                 />
+
+                {/* Botões de navegação — só aparecem se houver mais de 1 foto */}
+                {imagens.length > 1 && (
+                  <>
+                    <button
+                      onClick={irParaAnterior}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={irParaProxima}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+
+                    {/* Indicadores (bolinhas) */}
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                      {imagens.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={(e) => { e.stopPropagation(); setFotoAtiva(i) }}
+                          className={`w-2 h-2 rounded-full transition-all ${i === fotoAtiva ? "bg-white w-4" : "bg-white/50"}`}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Contador */}
+                    <span className="absolute top-3 right-3 bg-black/40 text-white text-xs px-2 py-1 rounded-full">
+                      {fotoAtiva + 1} / {imagens.length}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Miniaturas */}
+            {imagens.length > 1 && (
+              <div className="flex gap-2 px-4 pt-4">
+                {imagens.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setFotoAtiva(i)}
+                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${i === fotoAtiva ? "border-blue-600" : "border-transparent opacity-60 hover:opacity-100"}`}
+                  >
+                    <img src={img} alt={`miniatura ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
               </div>
             )}
 
             <div className="p-8">
               <div className="mb-6">
-                <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                  {casa.titulo}
-                </h1>
+                <h1 className="text-4xl font-bold text-gray-800 mb-2">{casa.titulo}</h1>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-bold text-blue-600">
                     {new Intl.NumberFormat("pt-AO", {
@@ -122,47 +184,32 @@ export default function CasaDetalhe() {
                 </div>
                 <div>
                   <p className="text-gray-600 text-sm">Quartos</p>
-                  <p className="text-xl font-bold text-gray-800">
-                    {casa.quartos}
-                  </p>
+                  <p className="text-xl font-bold text-gray-800">{casa.quartos}</p>
                 </div>
                 <div>
                   <p className="text-gray-600 text-sm">Casas de Banho</p>
-                  <p className="text-xl font-bold text-gray-800">
-                    {casa.banheiros}
-                  </p>
+                  <p className="text-xl font-bold text-gray-800">{casa.banheiros}</p>
                 </div>
                 <div>
                   <p className="text-gray-600 text-sm">Bairro</p>
-                  <p className="text-xl font-bold text-gray-800">
-                    {casa.bairro}
-                  </p>
+                  <p className="text-xl font-bold text-gray-800">{casa.bairro}</p>
                 </div>
               </div>
 
               <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                  Localização
-                </h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Localização</h2>
                 <p className="text-gray-600">{casa.endereco}</p>
               </div>
 
               <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                  Descrição
-                </h2>
-                <p className="text-gray-600 leading-relaxed">
-                  {casa.descricao}
-                </p>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Descrição</h2>
+                <p className="text-gray-600 leading-relaxed">{casa.descricao}</p>
               </div>
 
               <button
                 onClick={() => {
-                  if (!user) {
-                    router.push("/auth");
-                  } else {
-                    router.push(`/marcar-visita/${casa.id}`);
-                  }
+                  if (!user) router.push("/auth");
+                  else router.push(`/marcar-visita/${casa.id}`);
                 }}
                 className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition"
               >

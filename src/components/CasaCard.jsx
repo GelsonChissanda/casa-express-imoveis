@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import image from "next/image"
 
 export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho, banheiros, badge, id, imagem_url }) {
   const [favorito, setFavorito] = useState(false)
@@ -23,9 +24,9 @@ export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho,
       onClick={() => router.push(`/casas/${id}`)}
       className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group border border-gray-100 hover:-translate-y-1"
     >
-      <div className="relative h-48 bg-gradient-to-br from-blue-800 to-blue-500 flex items-center justify-center overflow-hidden">
+      <div className="relative h-48 bg-linear-to-br from-blue-800 to-blue-500 flex items-center justify-center overflow-hidden">
         {imagem_url ? (
-          <img src={imagem_url} alt={titulo} className="w-full h-full object-cover" />
+          <image src={imagem_url} alt={titulo} className="w-full h-full object-cover" />
         ) : (
           <>
             <div className="absolute inset-0 opacity-20">
