@@ -59,24 +59,6 @@ export default function MarcarVisita() {
  
       setSucesso(true)
  
-      // Abre WhatsApp do proprietário após marcar visita
-      if (casa?.whatsapp) {
-        const numero = casa.whatsapp.replace(/\D/g, "")
-        const dataFormatada = dataHora.toLocaleString("pt-AO", {
-          day: "2-digit", month: "2-digit", year: "numeric",
-          hour: "2-digit", minute: "2-digit"
-        })
-        const mensagem = encodeURIComponent(
-          `Olá! Marquei uma visita à casa "${casa.titulo}" para ${dataFormatada}. Contacto via CasaExpress.`
-        )
-        setTimeout(() => {
-          window.open(`https://wa.me/244${numero}?text=${mensagem}`, "_blank")
-          router.push("/dashboard")
-        }, 1500)
-      } else {
-        setTimeout(() => router.push("/dashboard"), 2000)
-      }
- 
     } catch (err) {
       setErro(err.message || "Erro ao marcar visita")
       console.error(err)
@@ -86,21 +68,36 @@ export default function MarcarVisita() {
   }
  
   if (sucesso) {
+    const numero = casa?.whatsapp?.replace(/\D/g, "")
+    const mensagem = encodeURIComponent(
+      `Olá! Marquei uma visita à casa "${casa?.titulo}". Contacto via CasaExpress.`
+    )
+    const linkWhatsapp = `https://wa.me/244${numero}?text=${mensagem}`
+ 
     return (
       <div>
         <Navbar />
         <div className="flex items-center justify-center min-h-screen bg-gray-50">
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md">
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md w-full mx-4">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Visita Marcada!</h2>
-            <p className="text-gray-600 mb-2">A tua visita foi marcada com sucesso.</p>
+            <p className="text-gray-600 mb-6">A tua visita foi marcada com sucesso.</p>
+ 
             {casa?.whatsapp && (
-              <p className="text-green-600 text-sm font-medium">A abrir WhatsApp do proprietário...</p>
+              <a href={linkWhatsapp} target="_blank" rel="noopener noreferrer"
+                className="block w-full py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition mb-3">
+                📱 Contactar proprietário no WhatsApp
+              </a>
             )}
+ 
+            <button onClick={() => router.push("/dashboard")}
+              className="block w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition">
+              Ver no Dashboard
+            </button>
           </div>
         </div>
         <Footer />
@@ -149,7 +146,7 @@ export default function MarcarVisita() {
               {casa?.whatsapp && (
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-green-700 text-sm font-medium">
-                    ✅ Após marcar, serás redirecionado para o WhatsApp do proprietário
+                    ✅ Após marcar, poderás contactar o proprietário via WhatsApp
                   </p>
                 </div>
               )}
