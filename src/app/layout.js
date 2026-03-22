@@ -7,6 +7,9 @@ export const metadata = {
   title: "CasaExpress — Arrendamento de Casas em Luanda",
   description: "Encontra casas para arrendar em Luanda. Talatona, Kilamba, Miramar e mais. Seguro, rápido e gratuito.",
   keywords: "casas arrendamento Luanda, alugar casa Angola, imóveis Luanda, Talatona, Kilamba",
+  verification: {
+    google: "_Gpwf7UVGn2ch_54Gtot0izRxYH5GGssyadj6eAW-PM",
+  },
   openGraph: {
     title: "CasaExpress — Arrendamento de Casas em Luanda",
     description: "Encontra casas para arrendar em Luanda. Seguro, rápido e gratuito.",
