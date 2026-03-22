@@ -1,5 +1,5 @@
 "use client"
-
+ 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../../contexts/AuthContext"
@@ -7,34 +7,34 @@ import { casasService } from "../../services/casasService"
 import { supabase } from "../../lib/supabaseClient"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
-
+ 
 const bairrosLuanda = [
   "Talatona", "Kilamba Kiaxi", "Luanda", "Viana", "Cazenga",
   "Quimper", "Rangel", "Benilson", "Caála", "Camama",
   "Zango", "Maianga", "Alvalade", "Praia do Bispo", "Conguém", "Morro Bento",
 ]
-
+ 
 export default function PublicarCasa() {
   const { user } = useAuth()
   const router = useRouter()
-
+ 
   const [form, setForm] = useState({
     titulo: "", descricao: "", preco: "", bairro: "",
-    quartos: "", casasDeBanho: "", tipo: "",
+    quartos: "", casasDeBanho: "", tipo: "", whatsapp: "",
   })
-
+ 
   const [fotoNome, setFotoNome] = useState("")
   const [fotoFile, setFotoFile] = useState(null)
   const [erros, setErros] = useState({})
   const [submetido, setSubmetido] = useState(false)
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState("")
-
+ 
   const atualizar = (campo, valor) => {
     setForm((prev) => ({ ...prev, [campo]: valor }))
     if (erros[campo]) setErros((prev) => ({ ...prev, [campo]: "" }))
   }
-
+ 
   const validar = () => {
     const e = {}
     if (!form.titulo.trim()) e.titulo = "Título obrigatório"
@@ -46,36 +46,38 @@ export default function PublicarCasa() {
     if (!form.quartos) e.quartos = "Obrigatório"
     if (!form.casasDeBanho) e.casasDeBanho = "Obrigatório"
     if (!form.tipo) e.tipo = "Tipologia obrigatória"
+    if (!form.whatsapp.trim()) e.whatsapp = "WhatsApp obrigatório"
+    else if (!/^\d{9,15}$/.test(form.whatsapp.replace(/\s/g, ""))) e.whatsapp = "Número inválido (só dígitos, 9-15)"
     return e
   }
-
+ 
   const handleSubmit = async () => {
     const e = validar()
     if (Object.keys(e).length > 0) { setErros(e); return }
-
+ 
     setLoading(true)
     setErro("")
-
+ 
     try {
       let imagem_url = ""
-
+ 
       if (fotoFile) {
         const nomeLimpo = fotoFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")
         const nomeArquivo = `${Date.now()}-${nomeLimpo}`
-
+ 
         const { error: uploadError } = await supabase.storage
           .from("casas-fotos")
           .upload(nomeArquivo, fotoFile)
-
+ 
         if (uploadError) throw uploadError
-
+ 
         const { data: { publicUrl } } = supabase.storage
           .from("casas-fotos")
           .getPublicUrl(nomeArquivo)
-
+ 
         imagem_url = publicUrl
       }
-
+ 
       const casa = {
         usuario_id: user.id,
         titulo: form.titulo,
@@ -85,10 +87,11 @@ export default function PublicarCasa() {
         quartos: parseInt(form.quartos),
         banheiros: parseInt(form.casasDeBanho),
         tipo: form.tipo,
+        whatsapp: form.whatsapp.replace(/\s/g, ""),
         imagem_url,
         created_at: new Date(),
       }
-
+ 
       await casasService.criarCasa(casa)
       setSubmetido(true)
     } catch (err) {
@@ -98,7 +101,7 @@ export default function PublicarCasa() {
       setLoading(false)
     }
   }
-
+ 
   if (submetido) {
     return (
       <div className="min-h-screen bg-[#F7F8FC]">
@@ -119,7 +122,7 @@ export default function PublicarCasa() {
                 className="w-full py-3 bg-blue-800 text-white font-bold text-sm rounded-xl hover:bg-blue-700 transition-colors">
                 Ver no Dashboard
               </button>
-              <button onClick={() => { setSubmetido(false); setForm({ titulo: "", descricao: "", preco: "", bairro: "", quartos: "", casasDeBanho: "", tipo: "" }); setFotoNome(""); setFotoFile(null); }}
+              <button onClick={() => { setSubmetido(false); setForm({ titulo: "", descricao: "", preco: "", bairro: "", quartos: "", casasDeBanho: "", tipo: "", whatsapp: "" }); setFotoNome(""); setFotoFile(null); }}
                 className="w-full py-3 border border-gray-200 text-gray-600 font-semibold text-sm rounded-xl hover:bg-gray-50 transition-colors">
                 Publicar outra casa
               </button>
@@ -130,12 +133,12 @@ export default function PublicarCasa() {
       </div>
     )
   }
-
+ 
   return (
     <div className="min-h-screen bg-[#F7F8FC]">
       <Navbar />
-
-      <div className="bg-gradient-to-r from-blue-900 to-blue-700 pt-24 pb-10">
+ 
+      <div className="bg-linear-to-r from-blue-900 to-blue-700 pt-24 pb-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <button onClick={() => router.push("/dashboard")}
             className="flex items-center gap-2 text-blue-200 hover:text-white text-sm mb-4 transition-colors">
@@ -148,13 +151,14 @@ export default function PublicarCasa() {
           <p className="text-blue-200 text-sm">Preenche os detalhes da casa para publicar o anúncio</p>
         </div>
       </div>
-
+ 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
         {erro && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">{erro}</div>
         )}
-
+ 
         <div className="space-y-5">
+          {/* SECÇÃO 1: Foto */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
               <span className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full text-xs font-black flex items-center justify-center">1</span>
@@ -179,7 +183,8 @@ export default function PublicarCasa() {
             <input id="upload-foto" type="file" accept="image/*" className="hidden"
               onChange={(e) => { if (e.target.files[0]) { setFotoNome(e.target.files[0].name); setFotoFile(e.target.files[0]) } }} />
           </div>
-
+ 
+          {/* SECÇÃO 2: Informações básicas */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="font-bold text-gray-800 mb-5 flex items-center gap-2">
               <span className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full text-xs font-black flex items-center justify-center">2</span>
@@ -205,11 +210,12 @@ export default function PublicarCasa() {
               </div>
             </div>
           </div>
-
+ 
+          {/* SECÇÃO 3: Localização, preço e WhatsApp */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="font-bold text-gray-800 mb-5 flex items-center gap-2">
               <span className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full text-xs font-black flex items-center justify-center">3</span>
-              Localização e preço
+              Localização e contacto
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -234,9 +240,23 @@ export default function PublicarCasa() {
                   <p className="text-xs text-blue-600 mt-1 font-medium">{new Intl.NumberFormat("pt-AO").format(form.preco)} Kz/mês</p>
                 )}
               </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                  WhatsApp do proprietário <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">🇦🇴 +244</span>
+                  <input type="tel" placeholder="923 456 789" value={form.whatsapp}
+                    onChange={(e) => atualizar("whatsapp", e.target.value)}
+                    className={`w-full pl-20 pr-3 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 ${erros.whatsapp ? "border-red-400" : "border-gray-200"}`} />
+                </div>
+                {erros.whatsapp && <p className="text-red-500 text-xs mt-1">{erros.whatsapp}</p>}
+                <p className="text-xs text-gray-400 mt-1">Os clientes usarão este número para te contactar via WhatsApp</p>
+              </div>
             </div>
           </div>
-
+ 
+          {/* SECÇÃO 4: Características */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="font-bold text-gray-800 mb-5 flex items-center gap-2">
               <span className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full text-xs font-black flex items-center justify-center">4</span>
@@ -275,7 +295,7 @@ export default function PublicarCasa() {
               </div>
             </div>
           </div>
-
+ 
           <button onClick={handleSubmit} disabled={loading}
             className="w-full py-4 bg-blue-800 text-white font-bold text-base rounded-xl hover:bg-blue-700 active:bg-blue-900 transition-colors shadow-lg flex items-center justify-center gap-2 disabled:opacity-50">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,14 +303,14 @@ export default function PublicarCasa() {
             </svg>
             {loading ? "Publicando..." : "Publicar anúncio"}
           </button>
-
+ 
           <p className="text-center text-xs text-gray-400">
             Ao publicar, confirmas que as informações são verdadeiras e aceitas os{" "}
             <span className="text-blue-600 cursor-pointer">Termos da Plataforma</span>
           </p>
         </div>
       </div>
-
+ 
       <Footer />
     </div>
   )

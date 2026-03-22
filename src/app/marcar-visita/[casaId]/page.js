@@ -1,5 +1,5 @@
 "use client"
-
+ 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "../../../contexts/AuthContext"
@@ -7,19 +7,19 @@ import { casasService } from "../../../services/casasService"
 import { visitasService } from "../../../services/visitasService"
 import Navbar from "../../../components/Navbar"
 import Footer from "../../../components/Footer"
-
+ 
 export default function MarcarVisita() {
   const { casaId } = useParams()
   const router = useRouter()
   const { user } = useAuth()
-
+ 
   const [casa, setCasa] = useState(null)
   const [data, setData] = useState("")
   const [hora, setHora] = useState("")
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState("")
   const [sucesso, setSucesso] = useState(false)
-
+ 
   useEffect(() => {
     const carregarCasa = async () => {
       try {
@@ -32,33 +32,51 @@ export default function MarcarVisita() {
     }
     carregarCasa()
   }, [casaId])
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setErro("")
     setLoading(true)
-
+ 
     try {
       if (!data || !hora) {
         setErro("Preenche data e hora")
         return
       }
-
+ 
       const dataHora = new Date(`${data}T${hora}`)
       if (dataHora < new Date()) {
         setErro("Seleciona uma data e hora futuras")
         return
       }
-
+ 
       await visitasService.marcarVisita({
         usuario_id: user.id,
         casa_id: casaId,
         data_hora: dataHora.toISOString(),
         status: "agendada",
       })
-
+ 
       setSucesso(true)
-      setTimeout(() => router.push("/dashboard"), 2000)
+ 
+      // Abre WhatsApp do proprietário após marcar visita
+      if (casa?.whatsapp) {
+        const numero = casa.whatsapp.replace(/\D/g, "")
+        const dataFormatada = dataHora.toLocaleString("pt-AO", {
+          day: "2-digit", month: "2-digit", year: "numeric",
+          hour: "2-digit", minute: "2-digit"
+        })
+        const mensagem = encodeURIComponent(
+          `Olá! Marquei uma visita à casa "${casa.titulo}" para ${dataFormatada}. Contacto via CasaExpress.`
+        )
+        setTimeout(() => {
+          window.open(`https://wa.me/244${numero}?text=${mensagem}`, "_blank")
+          router.push("/dashboard")
+        }, 1500)
+      } else {
+        setTimeout(() => router.push("/dashboard"), 2000)
+      }
+ 
     } catch (err) {
       setErro(err.message || "Erro ao marcar visita")
       console.error(err)
@@ -66,7 +84,7 @@ export default function MarcarVisita() {
       setLoading(false)
     }
   }
-
+ 
   if (sucesso) {
     return (
       <div>
@@ -79,14 +97,17 @@ export default function MarcarVisita() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Visita Marcada!</h2>
-            <p className="text-gray-600">A tua visita foi marcada com sucesso. Podes acompanhar no dashboard.</p>
+            <p className="text-gray-600 mb-2">A tua visita foi marcada com sucesso.</p>
+            {casa?.whatsapp && (
+              <p className="text-green-600 text-sm font-medium">A abrir WhatsApp do proprietário...</p>
+            )}
           </div>
         </div>
         <Footer />
       </div>
     )
   }
-
+ 
   return (
     <div>
       <Navbar />
@@ -99,15 +120,15 @@ export default function MarcarVisita() {
             </svg>
             Voltar
           </button>
-
+ 
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Marcar Visita</h1>
             <p className="text-gray-600 mb-8">{casa?.titulo}</p>
-
+ 
             {erro && (
               <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">{erro}</div>
             )}
-
+ 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -116,7 +137,7 @@ export default function MarcarVisita() {
                 <input type="date" value={data} onChange={(e) => setData(e.target.value)} required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
-
+ 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Hora <span className="text-red-500">*</span>
@@ -124,7 +145,15 @@ export default function MarcarVisita() {
                 <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
-
+ 
+              {casa?.whatsapp && (
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-green-700 text-sm font-medium">
+                    ✅ Após marcar, serás redirecionado para o WhatsApp do proprietário
+                  </p>
+                </div>
+              )}
+ 
               <button type="submit" disabled={loading}
                 className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
                 {loading ? "Marcando..." : "Marcar Visita"}
