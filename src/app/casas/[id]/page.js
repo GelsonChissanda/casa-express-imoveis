@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { casasService } from "../../../services/casasService";
@@ -16,22 +16,22 @@ export default function CasaDetalhe() {
   const [erro, setErro] = useState("");
   const [fotoAtiva, setFotoAtiva] = useState(0);
 
-  useEffect(() => {
-    carregarCasa();
-  }, [id]);
+  const carregarCasa = useCallback(async () => {
+  try {
+    setLoading(true);
+    const dados = await casasService.obterCasa(id);
+    setCasa(dados);
+  } catch (err) {
+    setErro("Casa não encontrada");
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+}, [id]);
 
-  const carregarCasa = async () => {
-    try {
-      setLoading(true);
-      const dados = await casasService.obterCasa(id);
-      setCasa(dados);
-    } catch (err) {
-      setErro("Casa não encontrada");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+useEffect(() => {
+  carregarCasa();
+}, [carregarCasa]);
 
   if (loading) {
     return (
@@ -101,7 +101,7 @@ export default function CasaDetalhe() {
             {imagens.length > 0 && (
               <div className="relative w-full h-96 overflow-hidden bg-gray-100">
                 {/* Imagem activa */}
-                <img
+                <image
                   src={imagens[fotoAtiva]}
                   alt={`${casa.titulo} - foto ${fotoAtiva + 1}`}
                   className="w-full h-full object-cover transition-opacity duration-300"
@@ -156,7 +156,7 @@ export default function CasaDetalhe() {
                     onClick={() => setFotoAtiva(i)}
                     className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${i === fotoAtiva ? "border-blue-600" : "border-transparent opacity-60 hover:opacity-100"}`}
                   >
-                    <img src={img} alt={`miniatura ${i + 1}`} className="w-full h-full object-cover" />
+                    <image src={img} alt={`miniatura ${i + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
