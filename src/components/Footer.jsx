@@ -26,7 +26,7 @@ export default function Footer() {
               {[
                 { label: "Ver Casas", href: "/casas" },
                 { label: "Como Funciona", href: "/#como-funciona" },
-                { label: "Publicar Casa", href: "/publicar-casa" },
+                { label: "Publicar Casa", href: "/publicarCasa" },
                 { label: "Dashboard", href: "/dashboard" },
                 { label: "Registar-se", href: "/auth" },
               ].map((item) => (
@@ -42,7 +42,7 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Bairros</h4>
             <ul className="space-y-2">
-              {["Talatona", "Miramar", "Kilamba", "Alvalade", "Maianga", "Ingombota", "Viana"].map((bairro) => (
+              {["Talatona", "Camama", "Kilamba", "Calemba 2", "Maianga", "Ingombota", "Viana"].map((bairro) => (
                 <li key={bairro}>
                   <Link href={`/casas?bairro=${bairro}`} className="text-sm text-gray-400 hover:text-white transition-colors">
                     {bairro}
