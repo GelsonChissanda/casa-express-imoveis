@@ -8,6 +8,16 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Image from "next/image";
 
+
+
+
+const selecionarBairro = (bairro) => {
+  atualizar("bairro", bairro)
+  setBairroValido(true)
+  setMostrarSugestoes(false)
+  setSugestoes([])
+}
+
 const CLOUD_NAME = "dw8t6gigw";
 const UPLOAD_PRESET = "casas-fotos";
 
@@ -68,6 +78,26 @@ const bairrosLuanda = [
 ].sort((a, b) => a.localeCompare(b, "pt"));
 
 export default function PublicarCasa() {
+const [sugestoes, setSugestoes] = useState([])
+const [mostrarSugestoes, setMostrarSugestoes] = useState(false)
+const [bairroValido, setBairroValido] = useState(false)
+
+const handleBairroChange = (valor) => {
+  atualizar("bairro", valor)
+  setBairroValido(false)
+  if (valor.length > 0) {
+    const filtradas = bairrosLuanda.filter(b =>
+      b.toLowerCase().includes(valor.toLowerCase())
+    )
+    setSugestoes(filtradas)
+    setMostrarSugestoes(true)
+  } else {
+    setSugestoes([])
+    setMostrarSugestoes(false)
+  }
+}
+
+
   const { user } = useAuth();
   const router = useRouter();
 
@@ -114,7 +144,7 @@ export default function PublicarCasa() {
       e.descricao = "Descrição muito curta (mín. 30 caracteres)";
     if (!form.preco) e.preco = "Preço obrigatório";
     else if (Number(form.preco) <= 0) e.preco = "Preço inválido";
-    if (!form.bairro) e.bairro = "Bairro obrigatório";
+    if (!form.bairro || !bairroValido) e.bairro = "Selecciona um bairro da lista"
     if (!form.quartos) e.quartos = "Obrigatório";
     if (!form.casasDeBanho) e.casasDeBanho = "Obrigatório";
     if (!form.tipo) e.tipo = "Tipologia obrigatória";
@@ -432,18 +462,28 @@ export default function PublicarCasa() {
                 <label className="block text-xs font-semibold text-gray-600 mb-1.5">
                   Bairro <span className="text-red-500">*</span>
                 </label>
-                <select
+                <input
+                  type="text"
+                  placeholder="Escolhe um bairro de Luanda"
                   value={form.bairro}
-                  onChange={(e) => atualizar("bairro", e.target.value)}
+                  onChange={(e) => handleBairroChange(e.target.value)}
                   className={`w-full px-3 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 ${erros.bairro ? "border-red-400" : "border-gray-200"}`}
-                >
-                  <option value="">Seleccionar bairro</option>
-                  {bairrosLuanda.map((b) => (
-                    <option key={b} value={b}>
-                      {b}
-                    </option>
-                  ))}
-                </select>
+                />
+
+
+{mostrarSugestoes && sugestoes.length > 0 && (
+  <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto">
+    {sugestoes.map((b) => (
+      <button key={b} type="button"
+        onClick={() => selecionarBairro(b)}
+        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-50 last:border-0">
+        {b}
+      </button>
+    ))}
+  </div>
+)}
+
+
                 {erros.bairro && (
                   <p className="text-red-500 text-xs mt-1">{erros.bairro}</p>
                 )}
