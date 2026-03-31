@@ -351,13 +351,13 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button
                   onClick={() => router.push("/auth")}
-                  className="px-8 py-4 bg-white text-blue-800 font-bold text-sm rounded-xl hover:bg-blue-50 transition-colors shadow-lg"
+                  className="px-8 py-4 bg-white text-blue-800 font-bold text-sm rounded-xl hover:bg-blue-50 transition-colors shadow-lg cursor-pointer"
                 >
                   Criar conta gratuita
                 </button>
                 <button
                   onClick={() => router.push("/casas")}
-                  className="px-8 py-4 bg-white/10 text-white font-bold text-sm rounded-xl hover:bg-white/20 transition-colors border border-white/30"
+                  className="cursor-pointer px-8 py-4 bg-white/10 text-white font-bold text-sm rounded-xl hover:bg-white/20 transition-colors border border-white/30"
                 >
                   Ver como funciona
                 </button>
