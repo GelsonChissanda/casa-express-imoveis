@@ -72,15 +72,29 @@ export default function Home() {
     <div className="min-h-screen bg-[#F7F8FC]">
       <Navbar />
 
-      <section className="relative bg-linear-to-br from-blue-900 via-blue-800 to-blue-600 pt-28 pb-20 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-64 h-64 border border-white rounded-full" />
-          <div className="absolute top-20 left-20 w-40 h-40 border border-white rounded-full" />
-          <div className="absolute bottom-10 right-10 w-80 h-80 border border-white rounded-full" />
-          <div className="absolute bottom-20 right-20 w-48 h-48 border border-white rounded-full" />
+      {/* Hero Section com Vídeo de Fundo */}
+      <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+        {/* Vídeo de Fundo */}
+        <div className="absolute inset-0 w-full h-full">
+          <video
+            autoPlay
+            muted
+            loop
+            preload="auto"
+            playsInline
+            className="absolute top-0 left-0 w-full h-full object-cover"
+          >
+            <source
+              src="//media.egorealestate.com/ORIGINAL/2d28/f283a003-f8ae-44f7-ad6b-aeea45ba2d28.mp4"
+              type="video/mp4"
+            />
+          </video>
+          {/* Overlay escuro para melhor legibilidade do texto */}
+          <div className="absolute inset-0 bg-black/50" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* Conteúdo sobreposto */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <span className="inline-block bg-white/20 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6 backdrop-blur-sm border border-white/30">
             🏙️ Plataforma nº1 de arrendamento em Luanda
           </span>
@@ -119,17 +133,22 @@ export default function Home() {
               />
 
               {mostrarSugestoes && sugestoes.length > 0 && (
-  <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto top-full left-0">
-    {sugestoes.map((b) => (
-      <button key={b} type="button"
-        onClick={() => { setPesquisa(b); setMostrarSugestoes(false); }}
-        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-50 last:border-0">
-        {b}
-      </button>
-    ))}
-  </div>
-)}
-
+                <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto top-full left-0">
+                  {sugestoes.map((b) => (
+                    <button
+                      key={b}
+                      type="button"
+                      onClick={() => {
+                        setPesquisa(b);
+                        setMostrarSugestoes(false);
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-50 last:border-0"
+                    >
+                      {b}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <button
               onClick={handlePesquisar}
