@@ -85,7 +85,7 @@ export default function Home() {
             className="absolute top-0 left-0 w-full h-full object-cover"
           >
             <source
-              src="//media.egorealestate.com/ORIGINAL/2d28/f283a003-f8ae-44f7-ad6b-aeea45ba2d28.mp4"
+              src="/video.mp4"
               type="video/mp4"
             />
           </video>
