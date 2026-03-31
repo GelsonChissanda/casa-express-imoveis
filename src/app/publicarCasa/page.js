@@ -11,12 +11,7 @@ import Image from "next/image";
 
 
 
-const selecionarBairro = (bairro) => {
-  atualizar("bairro", bairro)
-  setBairroValido(true)
-  setMostrarSugestoes(false)
-  setSugestoes([])
-}
+
 
 const CLOUD_NAME = "dw8t6gigw";
 const UPLOAD_PRESET = "casas-fotos";
@@ -81,6 +76,13 @@ export default function PublicarCasa() {
 const [sugestoes, setSugestoes] = useState([])
 const [mostrarSugestoes, setMostrarSugestoes] = useState(false)
 const [bairroValido, setBairroValido] = useState(false)
+
+const selecionarBairro = (bairro) => {
+  atualizar("bairro", bairro)
+  setBairroValido(true)
+  setMostrarSugestoes(false)
+  setSugestoes([])
+}
 
 const handleBairroChange = (valor) => {
   atualizar("bairro", valor)
