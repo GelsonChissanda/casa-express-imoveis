@@ -73,7 +73,7 @@ export default function Home() {
       <Navbar />
 
       {/* Hero Section com Vídeo de Fundo */}
-      <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen pt-32 pb-20 flex items-center justify-center overflow-hidden">
         {/* Vídeo de Fundo */}
         <div className="absolute inset-0 w-full h-full">
           <video
