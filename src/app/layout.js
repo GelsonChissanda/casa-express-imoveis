@@ -2,6 +2,7 @@
 import Providers from "./providers"
 import "./globals.css"
 import { Analytics } from "@vercel/analytics/next"
+import { GoogleAnalytics } from "@next/third-parties/google"
 
 export const metadata = {
   title: "CasaExpress — Arrendamento de Casas em Luanda",
@@ -32,6 +33,7 @@ export default function RootLayout({ children }) {
           {children}
         </Providers>
         <Analytics />
+        <GoogleAnalytics gaId="G-M4GW70BT3H" />
       </body>
     </html>
   )
