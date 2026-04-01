@@ -82,6 +82,7 @@ export default function Home() {
             loop
             preload="auto"
             playsInline
+            poster="/imagem.png"
             className="absolute top-0 left-0 w-full h-full object-cover"
           >
             <source
