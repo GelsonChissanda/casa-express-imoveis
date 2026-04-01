@@ -6,6 +6,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { casasService } from "../../../services/casasService";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
+import Image from "next/image";
 
 export default function CasaDetalhe() {
   const { id } = useParams();
@@ -17,21 +18,21 @@ export default function CasaDetalhe() {
   const [fotoAtiva, setFotoAtiva] = useState(0);
 
   const carregarCasa = useCallback(async () => {
-  try {
-    setLoading(true);
-    const dados = await casasService.obterCasa(id);
-    setCasa(dados);
-  } catch (err) {
-    setErro("Casa não encontrada");
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-}, [id]);
+    try {
+      setLoading(true);
+      const dados = await casasService.obterCasa(id);
+      setCasa(dados);
+    } catch (err) {
+      setErro("Casa não encontrada");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
-useEffect(() => {
-  carregarCasa();
-}, [carregarCasa]);
+  useEffect(() => {
+    carregarCasa();
+  }, [carregarCasa]);
 
   if (loading) {
     return (
@@ -68,17 +69,17 @@ useEffect(() => {
     ? casa.imagens_urls
     : casa.imagem_url
     ? [casa.imagem_url]
-    : []
+    : [];
 
   const irParaAnterior = (e) => {
-    e.stopPropagation()
-    setFotoAtiva((prev) => (prev === 0 ? imagens.length - 1 : prev - 1))
-  }
+    e.stopPropagation();
+    setFotoAtiva((prev) => (prev === 0 ? imagens.length - 1 : prev - 1));
+  };
 
   const irParaProxima = (e) => {
-    e.stopPropagation()
-    setFotoAtiva((prev) => (prev === imagens.length - 1 ? 0 : prev + 1))
-  }
+    e.stopPropagation();
+    setFotoAtiva((prev) => (prev === imagens.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <div>
@@ -96,15 +97,17 @@ useEffect(() => {
           </button>
 
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-
-            {/* ✅ CARROSSEL */}
+            {/* CARROSSEL */}
             {imagens.length > 0 && (
               <div className="relative w-full h-96 overflow-hidden bg-gray-100">
                 {/* Imagem activa */}
-                <image
+                <Image
                   src={imagens[fotoAtiva]}
                   alt={`${casa.titulo} - foto ${fotoAtiva + 1}`}
-                  className="w-full h-full object-cover transition-opacity duration-300"
+                  fill
+                  className="object-cover transition-opacity duration-300"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  priority={fotoAtiva === 0}
                 />
 
                 {/* Botões de navegação — só aparecem se houver mais de 1 foto */}
@@ -112,7 +115,7 @@ useEffect(() => {
                   <>
                     <button
                       onClick={irParaAnterior}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-colors"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-colors z-10"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -120,7 +123,7 @@ useEffect(() => {
                     </button>
                     <button
                       onClick={irParaProxima}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-colors z-10"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -128,18 +131,18 @@ useEffect(() => {
                     </button>
 
                     {/* Indicadores (bolinhas) */}
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                       {imagens.map((_, i) => (
                         <button
                           key={i}
-                          onClick={(e) => { e.stopPropagation(); setFotoAtiva(i) }}
+                          onClick={(e) => { e.stopPropagation(); setFotoAtiva(i); }}
                           className={`w-2 h-2 rounded-full transition-all ${i === fotoAtiva ? "bg-white w-4" : "bg-white/50"}`}
                         />
                       ))}
                     </div>
 
                     {/* Contador */}
-                    <span className="absolute top-3 right-3 bg-black/40 text-white text-xs px-2 py-1 rounded-full">
+                    <span className="absolute top-3 right-3 bg-black/40 text-white text-xs px-2 py-1 rounded-full z-10">
                       {fotoAtiva + 1} / {imagens.length}
                     </span>
                   </>
@@ -154,9 +157,15 @@ useEffect(() => {
                   <button
                     key={i}
                     onClick={() => setFotoAtiva(i)}
-                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${i === fotoAtiva ? "border-blue-600" : "border-transparent opacity-60 hover:opacity-100"}`}
+                    className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${i === fotoAtiva ? "border-blue-600" : "border-transparent opacity-60 hover:opacity-100"}`}
                   >
-                    <image src={img} alt={`miniatura ${i + 1}`} className="w-full h-full object-cover" />
+                    <Image
+                      src={img}
+                      alt={`miniatura ${i + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="64px"
+                    />
                   </button>
                 ))}
               </div>
