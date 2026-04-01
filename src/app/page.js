@@ -75,24 +75,21 @@ export default function Home() {
       {/* Hero Section com Vídeo de Fundo */}
       <section className="relative min-h-screen pt-32 pb-20 flex items-center justify-center overflow-hidden">
         {/* Vídeo de Fundo */}
-        <div className="absolute inset-0 w-full h-full">
-          <video
-            autoPlay
-            muted
-            loop
-            preload="auto"
-            playsInline
-            poster="/imagem.png"
-            className="absolute top-0 left-0 w-full h-full object-cover"
-          >
-            <source
-              src="/video.mp4"
-              type="video/mp4"
-            />
-          </video>
-          {/* Overlay escuro para melhor legibilidade do texto */}
-          <div className="absolute inset-0 bg-black/50" />
-        </div>
+        <div className="absolute inset-0">
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    preload="metadata"
+    poster="/imagem.png"
+    className="w-full h-full object-cover"
+  >
+    <source src="/video.mp4" type="video/mp4" />
+  </video>
+
+  <div className="absolute inset-0 bg-black/50" />
+</div>
 
         {/* Conteúdo sobreposto */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
