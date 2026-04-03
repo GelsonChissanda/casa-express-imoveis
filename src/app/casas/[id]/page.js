@@ -212,7 +212,9 @@ export default function CasaDetalhe() {
 
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Descrição</h2>
-                <p className="text-gray-600 leading-relaxed">{casa.descricao}</p>
+                <div className="text-gray-600 leading-relaxed whitespace-pre-wrap break-all">
+                  {casa.descricao}
+                </div>
               </div>
 
               <button
