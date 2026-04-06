@@ -14,7 +14,7 @@ export const metadata = {
   openGraph: {
     title: "CasaExpress — Arrendamento de Casas em Luanda",
     description: "Encontra casas para arrendar em Luanda. Seguro, rápido e gratuito.",
-    url: "https://casaexpress.vercel.app",
+    url: "https://casaexpress.fun",
     siteName: "CasaExpress",
     locale: "pt_AO",
     type: "website",
