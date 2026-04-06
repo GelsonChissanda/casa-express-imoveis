@@ -28,6 +28,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="pt">
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5936452711158206"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <Providers>
           {children}
