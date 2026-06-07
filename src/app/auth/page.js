@@ -109,7 +109,7 @@ export default function Auth() {
                     setTab(t.key);
                     setErroGeral("");
                   }}
-                  className={`flex-1 py-4 text-sm font-bold transition-colors ${tab === t.key ? "text-blue-800 border-b-2 border-blue-800 bg-blue-50/50" : "text-gray-500 hover:text-gray-700"}`}
+                  className={`flex-1 py-4 text-sm font-bold transition-colors ${tab === t.key ? "text-blue-800 border-b-2 border-blue-800 cursor-pointer bg-blue-50/50" : "text-gray-500 cursor-pointer hover:text-gray-700"}`}
                 >
                   {t.label}
                 </button>
@@ -164,7 +164,7 @@ export default function Auth() {
                   <button
                     onClick={handleLogin}
                     disabled={loading}
-                    className="w-full py-3 bg-blue-800 text-white font-bold text-sm rounded-xl hover:bg-blue-700 transition-colors shadow-sm mt-2 disabled:opacity-50"
+                    className="w-full cursor-pointer py-3 bg-blue-800 text-white font-bold text-sm rounded-xl hover:bg-blue-700 transition-colors shadow-sm mt-2 disabled:opacity-50"
                   >
                     {loading ? "A entrar..." : "Entrar na minha conta"}
                   </button>
@@ -172,7 +172,7 @@ export default function Auth() {
                     Ainda não tens conta?{" "}
                     <button
                       onClick={() => setTab("registar")}
-                      className="text-blue-600 font-semibold hover:text-blue-800"
+                      className="text-blue-600 font-semibold cursor-pointer hover:text-blue-800"
                     >
                       Regista-te gratuitamente
                     </button>
@@ -204,7 +204,7 @@ export default function Auth() {
                         <button
                           key={t.key}
                           onClick={() => setTipoConta(t.key)}
-                          className={`p-3 rounded-xl border-2 text-left transition-colors ${tipoConta === t.key ? "border-blue-800 bg-blue-50" : "border-gray-200 hover:border-blue-300"}`}
+                          className={`p-3 cursor-pointer rounded-xl border-2 text-left transition-colors ${tipoConta === t.key ? "border-blue-800 bg-blue-50" : "border-gray-200 hover:border-blue-300"}`}
                         >
                           <svg
                             className={`w-5 h-5 mb-1 ${tipoConta === t.key ? "text-blue-800" : "text-gray-400"}`}
@@ -224,7 +224,7 @@ export default function Auth() {
                           >
                             {t.label}
                           </p>
-                          <p className="text-xs text-gray-400">{t.desc}</p>
+                          <p className="text-xs  text-gray-400">{t.desc}</p>
                         </button>
                       ))}
                     </div>
@@ -238,7 +238,7 @@ export default function Auth() {
                       placeholder="Ex: Gelson Chissanda"
                       value={registo.nome}
                       onChange={(e) => atualizarRegisto("nome", e.target.value)}
-                      className={`w-full px-3 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 ${errosRegisto.nome ? "border-red-400" : "border-gray-200"}`}
+                      className={`w-full  px-3 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 ${errosRegisto.nome ? "border-red-400" : "border-gray-200"}`}
                     />
                     {errosRegisto.nome && (
                       <p className="text-red-500 text-xs mt-1">
@@ -313,7 +313,7 @@ export default function Auth() {
                   <button
                     onClick={handleRegistar}
                     disabled={loading}
-                    className="w-full py-3 bg-blue-800 text-white font-bold text-sm rounded-xl hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
+                    className="w-full cursor-pointer py-3 bg-blue-800 text-white font-bold text-sm rounded-xl hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
                   >
                     {loading ? "A criar conta..." : "Criar conta gratuita"}
                   </button>
@@ -321,7 +321,7 @@ export default function Auth() {
                     Já tens conta?{" "}
                     <button
                       onClick={() => setTab("login")}
-                      className="text-blue-600 font-semibold hover:text-blue-800"
+                      className="text-blue-600 font-semibold cursor-pointer hover:text-blue-800"
                     >
                       Entrar
                     </button>

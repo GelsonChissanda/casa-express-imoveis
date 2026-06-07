@@ -55,7 +55,7 @@ export default function Navbar() {
 
           <div className="hidden md:flex items-center gap-6">
             {links.map((link) => (
-              <Link key={link.href} href={link.href} className="text-sm font-medium text-gray-600 hover:text-blue-800 transition-colors">
+              <Link key={link.href} href={link.href} className="text-sm font-medium text-gray-600 hover:text-blue-800 transition-colors cursor-pointer">
                 {link.label}
               </Link>
             ))}
@@ -64,7 +64,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <>
-                <Link href="/dashboard" className="px-4 py-2 text-sm font-semibold text-blue-800 border border-blue-800 rounded-lg hover:bg-blue-50 transition-colors">
+                <Link href="/dashboard" className="px-4 py-2 text-sm font-semibold text-blue-800 border border-blue-800 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
                   Dashboard
                 </Link>
                 <button onClick={handleLogout} className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors cursor-pointer">
