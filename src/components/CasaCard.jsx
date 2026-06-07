@@ -26,6 +26,7 @@ export default function CasaCard({ titulo, preco, bairro, quartos, casasDeBanho,
     >
       <div className="relative h-48 bg-linear-to-br from-blue-800 to-blue-500 flex items-center justify-center overflow-hidden">
         {foto ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={foto} alt={titulo} className="w-full h-full object-cover" />
         ) : (
           <>

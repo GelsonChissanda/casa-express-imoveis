@@ -18,7 +18,7 @@ export default function AreaCard({ nome, quantidade, gradiente }) {
   return (
     <div
       onClick={() => router.push(`/casas?bairro=${nome}`)}
-      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradienteClass} cursor-pointer group h-36 sm:h-44 flex flex-col justify-end p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
+      className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${gradienteClass} cursor-pointer group h-36 sm:h-44 flex flex-col justify-end p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
     >
       <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-300" />
       <div className="absolute top-3 right-3 w-20 h-20 border border-white/20 rounded-full group-hover:scale-110 transition-transform duration-500" />
