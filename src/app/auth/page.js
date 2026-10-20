@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function Auth() {
   const [tab, setTab] = useState("login");
