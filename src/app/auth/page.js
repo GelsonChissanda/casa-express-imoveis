@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import { supabase } from "../../lib/supabase";
 
 export default function Auth() {
   const [tab, setTab] = useState("login");
@@ -74,6 +75,15 @@ export default function Auth() {
     router.push("/dashboard");
   };
 
+  const handleFacebook = async () => {
+  setErroGeral("");
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "facebook",
+    options: { redirectTo: `${window.location.origin}/dashboard` },
+  });
+  if (error) setErroGeral(error.message);
+};
+
   return (
     <div className="min-h-screen bg-[#F7F8FC]">
       <Navbar />
@@ -117,6 +127,12 @@ export default function Auth() {
             </div>
 
             <div className="p-6 sm:p-8">
+              <button
+  onClick={handleFacebook}
+  className="w-full cursor-pointer py-3 bg-[#1877F2] text-white font-bold text-sm rounded-xl hover:opacity-90 transition-opacity mb-4"
+>
+  Continuar com Facebook
+</button>
               {tab === "login" && (
                 <div className="space-y-4">
                   <div>
