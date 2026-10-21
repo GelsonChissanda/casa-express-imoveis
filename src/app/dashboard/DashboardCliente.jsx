@@ -19,7 +19,11 @@ export default function DashboardCliente() {
   const [aba, setAba] = useState("casas")
   const [pesquisa, setPesquisa] = useState("")
 
-  const nomeUtilizador = user?.user_metadata?.nome || user?.email
+  const nomeUtilizador =
+  user?.user_metadata?.nome ||
+  user?.user_metadata?.full_name ||
+  user?.user_metadata?.name ||
+  user?.email
 
   useEffect(() => {
     carregarDados()
