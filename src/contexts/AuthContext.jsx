@@ -10,15 +10,25 @@ export function AuthProvider({ children }) {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const carregarRole = async (userId) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .single();
-    console.log("carregarRole resultado:", data, error);
-    setRole(data?.role ?? "cliente");
-  };
+  const router = useRouter();
+const pathname = usePathname();
+const [perfilCompleto, setPerfilCompleto] = useState(true);
+
+const carregarRole = async (userId) => {
+  const { data } = await supabase
+    .from("profiles")
+    .select("role, perfil_completo")
+    .eq("id", userId)
+    .single();
+  setRole(data?.role ?? "cliente");
+  setPerfilCompleto(data?.perfil_completo ?? true);
+};
+
+useEffect(() => {
+  if (user && perfilCompleto === false && pathname !== "/completar-perfil") {
+    router.replace("/completar-perfil");
+  }
+}, [user, perfilCompleto, pathname, router]);
 
   useEffect(() => {
     supabase.auth
