@@ -1,6 +1,7 @@
-﻿"use client";
-import { usePathname, useRouter } from "next/navigation";
+"use client";
+
 import { createContext, useContext, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
 
 const AuthContext = createContext();
@@ -8,27 +9,28 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
+  const [perfilCompleto, setPerfilCompleto] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const router = useRouter();
-const pathname = usePathname();
-const [perfilCompleto, setPerfilCompleto] = useState(true);
+  const pathname = usePathname();
 
-const carregarRole = async (userId) => {
-  const { data } = await supabase
-    .from("profiles")
-    .select("role, perfil_completo")
-    .eq("id", userId)
-    .single();
-  setRole(data?.role ?? "cliente");
-  setPerfilCompleto(data?.perfil_completo ?? true);
-};
+  const carregarRole = async (userId) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("role, perfil_completo")
+      .eq("id", userId)
+      .single();
+    setRole(data?.role ?? "cliente");
+    setPerfilCompleto(data?.perfil_completo ?? true);
+  };
 
-useEffect(() => {
-  if (user && perfilCompleto === false && pathname !== "/completar-perfil") {
-    router.replace("/completar-perfil");
-  }
-}, [user, perfilCompleto, pathname, router]);
+  // Perfil incompleto: manda para o ecrã de completar
+  useEffect(() => {
+    if (user && perfilCompleto === false && pathname !== "/completar-perfil") {
+      router.replace("/completar-perfil");
+    }
+  }, [user, perfilCompleto, pathname, router]);
 
   useEffect(() => {
     supabase.auth
@@ -38,7 +40,7 @@ useEffect(() => {
         if (session?.user) carregarRole(session.user.id);
         setLoading(false);
       })
-      .catch((error) => {
+      .catch(() => {
         setLoading(false);
       });
 
@@ -47,7 +49,10 @@ useEffect(() => {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) carregarRole(session.user.id);
-      else setRole(null);
+      else {
+        setRole(null);
+        setPerfilCompleto(true);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -74,11 +79,24 @@ useEffect(() => {
     await supabase.auth.signOut();
     setUser(null);
     setRole(null);
+    setPerfilCompleto(true);
+  };
+
+  const recarregarPerfil = async () => {
+    if (user) await carregarRole(user.id);
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, role, loading, login, register, logout }}
+      value={{
+        user,
+        role,
+        loading,
+        login,
+        register,
+        logout,
+        recarregarPerfil,
+      }}
     >
       {children}
     </AuthContext.Provider>
