@@ -79,7 +79,7 @@ export default function Auth() {
   setErroGeral("");
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "facebook",
-    options: { redirectTo: `${window.location.origin}/dashboard` },
+    options: { redirectTo: `${window.location.origin}/completar-perfil` },
   });
   if (error) setErroGeral(error.message);
 };
