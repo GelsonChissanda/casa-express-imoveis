@@ -9,7 +9,6 @@ import { supabase } from "../../lib/supabaseClient";
 
 export default function Auth() {
   const [tab, setTab] = useState("login");
-  const [tipoConta, setTipoConta] = useState("cliente");
   const router = useRouter();
   const { login: authLogin, register: authRegister } = useAuth();
 
@@ -56,24 +55,20 @@ export default function Auth() {
   };
 
   const handleRegistar = async () => {
-    // ... validações (não muda nada aqui)
-    setLoading(true);
-    setErroGeral("");
-    const { error } = await authRegister(
-      registo.email,
-      registo.password,
-      registo.nome,
-      tipoConta,
-    );
-    setLoading(false);
-    if (error) {
-      setErroGeral(error.message);
-      return;
-    }
-    // Aguarda o trigger do Supabase criar o profile
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    router.push("/dashboard");
-  };
+  const erros = {};
+  if (!registo.nome.trim()) erros.nome = "Nome obrigatório";
+  if (!/\S+@\S+\.\S+/.test(registo.email)) erros.email = "Email inválido";
+  if (registo.password.length < 6) erros.password = "Mínimo 6 caracteres";
+  if (registo.confirmar !== registo.password) erros.confirmar = "As passwords não coincidem";
+  if (Object.keys(erros).length > 0) { setErrosRegisto(erros); return; }
+  setLoading(true);
+  setErroGeral("");
+  const { error } = await authRegister(registo.email, registo.password, registo.nome, "cliente");
+  setLoading(false);
+  if (error) { setErroGeral(error.message); return; }
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  router.push("/completar-perfil");
+};
 
   const handleFacebook = async () => {
   setErroGeral("");
