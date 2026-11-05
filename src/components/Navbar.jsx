@@ -47,7 +47,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-9 h-9 flex items-center justify-center transition-colors">
               <svg width="916" height="613" viewBox="0 0 916 613" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_2604_6)">
+<g clipPath="url(#clip0_2604_6)">
 <path opacity="0.89" d="M234 220.565L307 195V359.754L234 391V220.565Z" fill="#1442B0"/>
 <path d="M385 140H458V290.364L385 321V140Z" fill="#1442B0"/>
 <path d="M537 267.571L609 248V354L537 324.373V267.571Z" fill="#1442B0"/>
