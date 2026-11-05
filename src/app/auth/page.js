@@ -193,48 +193,7 @@ export default function Auth() {
 
               {tab === "registar" && (
                 <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      {[
-                        {
-                          key: "cliente",
-                          label: "Cliente",
-                          desc: "Procuro casa",
-                          icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
-                        },
-                        {
-                          key: "intermediario",
-                          label: "Intermediário",
-                          desc: "Publico casas",
-                          icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
-                        },
-                      ].map((t) => (
-                        <button
-                          key={t.key}
-                          onClick={() => setTipoConta(t.key)}
-                          className={`p-3 cursor-pointer rounded-xl border-2 text-left transition-colors ${tipoConta === t.key ? "border-blue-800 bg-blue-50" : "border-gray-200 hover:border-blue-300"}`}
-                        >
-                          <svg
-                            className={`w-5 h-5 mb-1 ${tipoConta === t.key ? "text-blue-800" : "text-gray-400"}`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d={t.icon}
-                            />
-                          </svg>
-                          <p
-                            className={`text-xs font-bold ${tipoConta === t.key ? "text-blue-800" : "text-gray-700"}`}
-                          >
-                            {t.label}
-                          </p>
-                          <p className="text-xs  text-gray-400">{t.desc}</p>
-                        </button>
-                      ))}
-                    </div>
+                    
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-600 mb-1.5">
