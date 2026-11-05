@@ -193,10 +193,6 @@ export default function Auth() {
 
               {tab === "registar" && (
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-2">
-                      Tipo de conta
-                    </label>
                     <div className="grid grid-cols-2 gap-3">
                       {[
                         {
@@ -239,7 +235,7 @@ export default function Auth() {
                         </button>
                       ))}
                     </div>
-                  </div>
+
                   <div>
                     <label className="block text-xs font-semibold text-gray-600 mb-1.5">
                       Nome completo
