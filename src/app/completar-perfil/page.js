@@ -9,14 +9,21 @@ import { supabase } from "../../lib/supabaseClient";
 export default function CompletarPerfil() {
   const [whatsapp, setWhatsapp] = useState("");
   const [role, setRole] = useState("cliente");
+  const [erro, setErro] = useState("");
   const router = useRouter();
   const { user, recarregarPerfil } = useAuth();
 
 async function guardar() {
   if (!user) return alert("A sessão ainda está a carregar, tenta de novo")
+  const numero = whatsapp.replace(/\D/g, "").replace(/^244/, "")
+  if (!/^9\d{8}$/.test(numero)) {
+    setErro("Número inválido: usa 9 dígitos começados por 9.")
+    return
+  }
+  setErro("")
   const { data, error } = await supabase
     .from("profiles")
-    .update({ whatsapp, role, perfil_completo: true })
+    .update({ whatsapp: numero, role, perfil_completo: true })
     .eq("id", user.id)
     .select()
   if (error) return alert("Erro: " + error.message)
@@ -24,7 +31,6 @@ async function guardar() {
   await recarregarPerfil()
   router.push("/dashboard")
 }
-
   return (
     <div>
       <Navbar />
@@ -50,14 +56,19 @@ async function guardar() {
                 WhatsApp
               </label>
               <input
-                value={whatsapp}
-                onChange={(e) => setWhatsapp(e.target.value)}
-                placeholder="Ex.: 923 000 000"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <p className="text-gray-400 text-xs mt-1">
-                Só a equipa do CasaExpress vê este número.
-              </p>
+  value={whatsapp}
+  onChange={(e) => {
+    setWhatsapp(e.target.value)
+    setErro("")
+  }}
+  placeholder="Ex.: 923 000 000"
+  className={`w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${erro ? "border-red-400" : "border-gray-200"}`}
+/>
+{erro ? (
+  <p className="text-red-500 text-xs mt-1">{erro}</p>
+) : (
+  <p className="text-gray-400 text-xs mt-1">Só a equipa do CasaExpress vê este número.</p>
+)}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">
