@@ -5,6 +5,8 @@ import { Analytics } from "@vercel/analytics/next"
 import { GoogleAnalytics } from "@next/third-parties/google"
 
 export const metadata = {
+  metadataBase: new URL("https://casaexpress.fun"),
+  alternates: { canonical: "./" },
   title: "CasaExpress — Arrendamento de Casas em Luanda",
   description: "Encontra casas para arrendar em Luanda. Talatona, Kilamba, Miramar e mais. Seguro, rápido e gratuito.",
   keywords: "casas arrendamento Luanda, alugar casa Angola, imóveis Luanda, Talatona, Kilamba",
