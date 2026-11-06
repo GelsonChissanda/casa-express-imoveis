@@ -79,6 +79,15 @@ export default function Auth() {
   if (error) setErroGeral(error.message);
 };
 
+const handleGoogle = async () => {
+  setErroGeral("");
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${window.location.origin}/completar-perfil` },
+  });
+  if (error) setErroGeral(error.message);
+};
+
   return (
     <div className="min-h-screen bg-[#F7F8FC]">
       <Navbar />
@@ -127,6 +136,12 @@ export default function Auth() {
   className="w-full cursor-pointer py-3 bg-[#1877F2] text-white font-bold text-sm rounded-xl hover:opacity-90 transition-opacity mb-4"
 >
   Continuar com Facebook
+</button>
+<button
+  onClick={handleGoogle}
+  className="w-full cursor-pointer py-3 bg-white text-gray-700 border border-gray-200 font-bold text-sm rounded-xl hover:bg-gray-50 transition-colors mb-4"
+>
+  Continuar com Google
 </button>
               {tab === "login" && (
                 <div className="space-y-4">
@@ -297,13 +312,15 @@ export default function Auth() {
             </div>
           </div>
 
-          <p className="text-center text-xs text-gray-400 mt-6">
+                    <p className="text-center text-xs text-gray-400 mt-6">
             Ao continuar, aceitas os{" "}
-            <span className="text-blue-600 cursor-pointer">Termos de Uso</span>{" "}
+            <a href="/termos" className="text-blue-600 hover:text-blue-800">
+              Termos de Uso
+            </a>{" "}
             e a{" "}
-            <span className="text-blue-600 cursor-pointer">
+            <a href="/privacidade" className="text-blue-600 hover:text-blue-800">
               Política de Privacidade
-            </span>
+            </a>
           </p>
         </div>
       </div>
