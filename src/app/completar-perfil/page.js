@@ -19,7 +19,8 @@ async function guardar() {
     .update({ whatsapp, role, perfil_completo: true })
     .eq("id", user.id)
     .select()
-  if (error || !data?.length) return alert("Não foi possível guardar o perfil")
+  if (error) return alert("Erro: " + error.message)
+  if (!data?.length) return alert("Nenhuma linha atualizada: o perfil não existe ou a RLS bloqueou")
   await recarregarPerfil()
   router.push("/dashboard")
 }
