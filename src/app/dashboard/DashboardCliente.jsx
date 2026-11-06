@@ -80,7 +80,7 @@ export default function DashboardCliente() {
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-blue-300 text-sm font-medium uppercase tracking-widest mb-1">Painel do Cliente</p>
-                <h1 className="text-4xl font-bold text-white mb-2">Olá, {nomeUtilizador}!</h1>
+                <h1 className="text-4xl font-bold text-white mb-2">{nomeUtilizador}!</h1>
                 <p className="text-blue-200">Encontra a tua próxima casa em Angola</p>
               </div>
               <button onClick={() => logout().then(() => router.push("/"))} className="px-6 py-2 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition">Sair</button>

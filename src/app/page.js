@@ -9,6 +9,7 @@ import AreaCard from "@/components/AreaCard";
 import { casasService } from "@/services/casasService";
 import { supabase } from "@/lib/supabaseClient";
 
+
 const gradientes = ["azul", "ciano", "indigo", "royal", "escuro"];
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
   const [sugestoes, setSugestoes] = useState([]);
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
   const router = useRouter();
+  const [todasCasas, setTodasCasas] = useState([])
 
   const handleBairroChange = (valor) => {
     setPesquisa(valor);
@@ -33,13 +35,18 @@ export default function Home() {
     }
   };
 
+  
+
   useEffect(() => {
-    casasService
-      .listarCasas()
-      .then((casas) => {
-        if (casas) setCasasDestaque(casas.slice(0, 6));
-      })
-      .catch(console.error);
+
+   casasService
+  .listarCasas()
+  .then((casas) => {
+    if (!casas) return;
+    setTodasCasas(casas);
+    setCasasDestaque(casas.slice(0, 6));
+  })
+  .catch(console.error);
 
     async function carregarBairros() {
       const { data } = await supabase.from("casas").select("bairro");
@@ -93,9 +100,7 @@ export default function Home() {
 
         {/* Conteúdo sobreposto */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="inline-block bg-white/20 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6 backdrop-blur-sm border border-white/30">
-            🏙️ Plataforma nº1 de arrendamento em Luanda
-          </span>
+          
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-5 tracking-tight">
             Encontra a tua casa
             <br />
@@ -158,7 +163,7 @@ export default function Home() {
 
           <div className="flex flex-wrap justify-center gap-8 mt-12">
             {[
-              { valor: "120+", label: "Casas Disponíveis" },
+              { valor: todasCasas.length, label: "Casas Disponíveis" },
               { valor: "45+", label: "Intermediários" },
               { valor: "500+", label: "Visitas Marcadas" },
               { valor: "5", label: "Bairros Principais" },
