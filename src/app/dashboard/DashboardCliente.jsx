@@ -285,7 +285,6 @@ export default function DashboardCliente() {
                     Painel do Cliente
                   </p>
                   <h1 className="text-3xl sm:text-4xl font-extrabold text-white">
-                    {" "}
                     <span className="bg-linear-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
                       {primeiroNome}
                     </span>
