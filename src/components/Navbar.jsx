@@ -35,7 +35,6 @@ export default function Navbar() {
 
   const links = [
     { label: "Ver Casas", href: "/casas" },
-    { label: "Como Funciona", href: "/#como-funciona" },
     { label: "Bairros", href: "/#bairros" },
   ]
 
@@ -76,11 +75,7 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            {links.map((link) => (
-              <Link key={link.href} href={link.href} className="text-sm font-medium text-gray-600 hover:text-blue-800 transition-colors cursor-pointer">
-                {link.label}
-              </Link>
-            ))}
+            
           </div>
 
           <div className="hidden md:flex items-center gap-3">
@@ -118,11 +113,7 @@ export default function Navbar() {
 
       {menuAberto && (
         <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 flex flex-col gap-3 shadow-lg">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href} className="text-sm font-medium text-gray-700 hover:text-blue-800 py-2 border-b border-gray-50 transition-colors">
-              {link.label}
-            </Link>
-          ))}
+          
           <div className="flex gap-3 pt-2">
             {user ? (
               <>
@@ -139,12 +130,9 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link href="/auth" className="flex-1 text-center py-2 text-sm font-semibold text-blue-800 border border-blue-800 rounded-lg hover:bg-blue-50 transition-colors">
-                  Entrar
-                </Link>
                 <Link href="/auth" className="flex-1 text-center py-2 text-sm font-semibold text-white bg-blue-800 rounded-lg hover:bg-blue-700 transition-colors">
-                  Registar
-                </Link>
+  Iniciar sessão
+</Link>
               </>
             )}
           </div>

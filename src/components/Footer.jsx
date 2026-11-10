@@ -1,6 +1,10 @@
 import Link from "next/link"
 
+
+
 export default function Footer() {
+
+
   return (
     <footer className="bg-[#2D3148] text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
@@ -21,21 +25,9 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Plataforma</h4>
+            
             <ul className="space-y-2">
-              {[
-                { label: "Ver Casas", href: "/casas" },
-                { label: "Como Funciona", href: "/#como-funciona" },
-                { label: "Publicar Casa", href: "/publicarCasa" },
-                { label: "Dashboard", href: "/dashboard" },
-                { label: "Registar-se", href: "/auth" },
-              ].map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className="text-sm text-gray-400 hover:text-white transition-colors">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+              
             </ul>
           </div>
 
@@ -54,12 +46,20 @@ export default function Footer() {
 
           <div>
             <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Suporte</h4>
+            
             <ul className="space-y-2 mb-6">
-              {["Centro de Ajuda", "Contacta-nos", "Termos de Uso", "Privacidade"].map((item) => (
-                <li key={item}>
-                  <span className="text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">{item}</span>
-                </li>
-              ))}
+              {[
+  { label: "Centro de Ajuda", href: "/ajuda" },
+  { label: "Contacta-nos", href: "/contacto" },
+  { label: "Termos de Uso", href: "/termos" },
+  { label: "Privacidade", href: "/privacidade" },
+].map((item) => (
+  <li key={item.href}>
+    <Link href={item.href} className="text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">
+      {item.label}
+    </Link>
+  </li>
+))}
             </ul>
 
             <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-3">Redes Sociais</h4>

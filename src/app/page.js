@@ -104,7 +104,7 @@ export default function Home() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-5 tracking-tight">
             Encontra a tua casa
             <br />
-            <span className="text-blue-200">em Luanda</span>
+            <span className="text-[#2B7FFF]">em Luanda</span>
           </h1>
           <p className="text-blue-100 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
             Milhares de casas para arrendar nos melhores bairros de Luanda.
@@ -161,102 +161,17 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-8 mt-12">
-            {[
-              { valor: todasCasas.length, label: "Casas Disponíveis" },
-              { valor: "45+", label: "Intermediários" },
-              { valor: "500+", label: "Visitas Marcadas" },
-              { valor: "5", label: "Bairros Principais" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl font-extrabold text-white">
-                  {stat.valor}
-                </div>
-                <div className="text-blue-200 text-sm mt-0.5">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+          
         </div>
       </section>
 
-      <section id="como-funciona" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">
-              Simples e rápido
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-2">
-              Como funciona
-            </h2>
-            <p className="text-gray-500 mt-3 max-w-lg mx-auto">
-              Em 3 passos simples encontras e arrendas a tua casa ideal em
-              Luanda
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                step: "01",
-                titulo: "Procura",
-                desc: "Pesquisa por bairro, preço ou tipologia. Filtra até encontrares a casa ideal.",
-                icon: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z",
-              },
-              {
-                step: "02",
-                titulo: "Visita",
-                desc: "Marca uma visita directamente pela plataforma. O intermediário confirma.",
-                icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-              },
-              {
-                step: "03",
-                titulo: "Arrenda",
-                desc: "Gosta da casa? Assina o contrato e muda-te para o teu novo lar.",
-                icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
-              },
-            ].map((item) => (
-              <div
-                key={item.step}
-                className="text-center p-8 rounded-2xl bg-[#F7F8FC] hover:bg-blue-50 transition-colors group"
-              >
-                <div className="relative inline-flex mb-6">
-                  <div className="w-16 h-16 bg-blue-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                    <svg
-                      className="w-7 h-7 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d={item.icon}
-                      />
-                    </svg>
-                  </div>
-                  <span className="absolute -top-2 -right-2 w-7 h-7 bg-blue-100 text-blue-800 text-xs font-black rounded-full flex items-center justify-center border-2 border-white">
-                    {item.step}
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  {item.titulo}
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       <section className="py-20 bg-[#F7F8FC]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">
-                Selecção do editor
-              </span>
+              
               <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-2">
                 Casas em Destaque
               </h2>
@@ -314,9 +229,7 @@ export default function Home() {
       <section id="bairros" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">
-              Explorar por zona
-            </span>
+            
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-2">
               Bairros em Destaque
             </h2>
@@ -356,14 +269,9 @@ export default function Home() {
                   onClick={() => router.push("/auth")}
                   className="px-8 py-4 bg-white text-blue-800 font-bold text-sm rounded-xl hover:bg-blue-50 transition-colors shadow-lg cursor-pointer"
                 >
-                  Criar conta gratuita
+                  Iniciar sessão
                 </button>
-                <button
-                  onClick={() => router.push("/casas")}
-                  className="cursor-pointer px-8 py-4 bg-white/10 text-white font-bold text-sm rounded-xl hover:bg-white/20 transition-colors border border-white/30"
-                >
-                  Ver como funciona
-                </button>
+               
               </div>
             </div>
           </div>
