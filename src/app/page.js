@@ -8,6 +8,7 @@ import CasaCard from "@/components/CasaCard";
 import AreaCard from "@/components/AreaCard";
 import { casasService } from "@/services/casasService";
 import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "../contexts/AuthContext"
 
 
 const gradientes = ["azul", "ciano", "indigo", "royal", "escuro"];
@@ -19,6 +20,7 @@ export default function Home() {
   const [sugestoes, setSugestoes] = useState([]);
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
   const router = useRouter();
+  const { user } = useAuth()
   const [todasCasas, setTodasCasas] = useState([])
 
   const handleBairroChange = (valor) => {
@@ -265,12 +267,14 @@ export default function Home() {
                 para arrendar as suas casas mais rápido.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button
-                  onClick={() => router.push("/auth")}
-                  className="px-8 py-4 bg-white text-blue-800 font-bold text-sm rounded-xl hover:bg-blue-50 transition-colors shadow-lg cursor-pointer"
-                >
-                  Iniciar sessão
-                </button>
+                {!user && (
+  <button
+    onClick={() => router.push("/auth")}
+    className="px-8 py-4 bg-white text-blue-800 font-bold text-sm rounded-xl hover:bg-blue-50 transition-colors shadow-lg cursor-pointer"
+  >
+    Iniciar sessão
+  </button>
+)}
                
               </div>
             </div>
