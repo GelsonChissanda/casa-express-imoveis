@@ -12,7 +12,7 @@ export default function Auth() {
     setErroGeral("");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "facebook",
-      options: { redirectTo: `${window.location.origin}/completar-perfil` },
+      options: { redirectTo: `${window.location.origin}/dashboard` },
     });
     if (error) setErroGeral(error.message);
   };
@@ -21,7 +21,7 @@ export default function Auth() {
     setErroGeral("");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/completar-perfil` },
+      options: { redirectTo: `${window.location.origin}/dashboard` },
     });
     if (error) setErroGeral(error.message);
   };
