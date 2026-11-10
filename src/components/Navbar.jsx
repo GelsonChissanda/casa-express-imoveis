@@ -95,12 +95,9 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link href="/auth" className="px-4 py-2 text-sm font-semibold text-blue-800 border border-blue-800 rounded-lg hover:bg-blue-50 transition-colors">
-                  Entrar
-                </Link>
                 <Link href="/auth" className="px-4 py-2 text-sm font-semibold text-white bg-blue-800 rounded-lg hover:bg-blue-700 transition-colors">
-                  Registar
-                </Link>
+  Entrar
+</Link>
               </>
             )}
           </div>
