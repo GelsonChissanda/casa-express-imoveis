@@ -134,7 +134,7 @@ export default function Home() {
                 value={pesquisa}
                 onChange={(e) => handleBairroChange(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handlePesquisar()}
-                className="w-full pl-10 pr-4 py-3 bg-white/90 text-gray-800 placeholder-gray-400 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white"
+                className="w-full pl-10 pr-4 py-3 text-gray-800 placeholder-gray-400 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white"
               />
 
               {mostrarSugestoes && sugestoes.length > 0 && (
