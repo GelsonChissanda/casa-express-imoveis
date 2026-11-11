@@ -106,7 +106,7 @@ export default function Home() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-5 tracking-tight">
             Encontra a tua casa
             <br />
-            <span className="text-[#2B7FFF]">em Luanda</span>
+            <span className="text-blue-300">em Luanda</span>
           </h1>
           <p className="text-blue-100 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
             Milhares de casas para arrendar nos melhores bairros de Luanda.
