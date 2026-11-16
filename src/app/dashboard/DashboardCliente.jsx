@@ -21,6 +21,7 @@ import { casasService } from "../../services/casasService"
 import { visitasService } from "../../services/visitasService"
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
+import ChatModal from "../../components/ChatModal"
 
 const formatarPreco = (v) =>
   new Intl.NumberFormat("pt-AO", {
@@ -171,6 +172,7 @@ export default function DashboardCliente() {
   const [loading, setLoading] = useState(false)
   const [aba, setAba] = useState("casas")
   const [pesquisa, setPesquisa] = useState("")
+  const [chatVisita, setChatVisita] = useState(null)
 
   const nomeUtilizador =
     user?.user_metadata?.nome ||
@@ -447,6 +449,12 @@ export default function DashboardCliente() {
                               </div>
                               <div className="flex gap-2">
                                 <button
+  onClick={() => setChatVisita(visita)}
+  className="px-4 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-sm font-semibold hover:bg-blue-100 transition-colors cursor-pointer"
+>
+  Chat
+</button>
+                                <button
                                   onClick={() => router.push(`/casas/${visita.casa_id}`)}
                                   className="px-4 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors cursor-pointer"
                                 >
@@ -499,6 +507,14 @@ export default function DashboardCliente() {
           )}
         </div>
       </div>
+      {chatVisita && (
+  <ChatModal
+    visita={chatVisita}
+    userId={user.id}
+    titulo={chatVisita.casas?.titulo || "Casa"}
+    onClose={() => setChatVisita(null)}
+  />
+)}
       <Footer />
     </div>
   )
