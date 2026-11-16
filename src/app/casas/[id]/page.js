@@ -9,15 +9,14 @@ import {
   MapPin,
   Home,
   Building2,
-  BedDouble,
-  Bath,
   ChevronLeft,
   ChevronRight,
   X,
   Images,
   Expand,
   CalendarCheck,
-  ExternalLink,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { casasService } from "../../../services/casasService";
@@ -40,11 +39,45 @@ function Fundo({ children, altura = "pb-36" }) {
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: "radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)",
+          backgroundImage:
+            "radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
         }}
       />
       <div className="relative max-w-6xl mx-auto px-4">{children}</div>
+    </div>
+  );
+}
+
+// Card do intermediário: foto (ou inicial do nome) + nome + botão "Ver contacto"
+function CardIntermediario({ dono, onContacto, className = "" }) {
+  if (!dono) return null;
+
+  return (
+    <div className={`flex items-center gap-3 ${className}`}>
+      {dono.avatar_url ? (
+        <Image
+          src={dono.avatar_url}
+          alt={dono.nome || "Consultor"}
+          width={48}
+          height={48}
+          className="w-12 h-12 rounded-full object-cover"
+        />
+      ) : (
+        <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-600 to-cyan-500 text-white flex items-center justify-center font-bold text-lg">
+          {dono.nome?.[0]?.toUpperCase() ?? "?"}
+        </div>
+      )}
+      <div>
+        <p className="text-xs text-slate-400">Consultor</p>
+        <p className="font-semibold text-slate-900">{dono.nome}</p>
+      </div>
+      <button
+        onClick={onContacto}
+        className="ml-auto px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-xl hover:bg-blue-600 transition-colors cursor-pointer"
+      >
+        Ver contacto
+      </button>
     </div>
   );
 }
@@ -54,16 +87,28 @@ export default function CasaDetalhe() {
   const router = useRouter();
   const { user } = useAuth();
   const [casa, setCasa] = useState(null);
+  const [dono, setDono] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [fotoAtiva, setFotoAtiva] = useState(0);
   const [lightbox, setLightbox] = useState(false);
+  const [contactoAberto, setContactoAberto] = useState(false);
 
   const carregarCasa = useCallback(async () => {
     try {
       setLoading(true);
       const dados = await casasService.obterCasa(id);
       setCasa(dados);
+
+      // Se falhar a busca do intermediário, a casa continua a aparecer
+      try {
+        const intermediario = await casasService.obterIntermediario(
+          dados.usuario_id,
+        );
+        setDono(intermediario);
+      } catch (err) {
+        console.error("Erro ao carregar intermediário:", err);
+      }
     } catch (err) {
       setErro("Casa não encontrada");
       console.error(err);
@@ -77,22 +122,27 @@ export default function CasaDetalhe() {
   }, [carregarCasa]);
 
   // Lista de imagens — usa imagens_urls se existir, senão imagem_url
-  const imagens = casa?.imagens_urls?.length > 0
-    ? casa.imagens_urls
-    : casa?.imagem_url
-    ? [casa.imagem_url]
-    : [];
+  const imagens =
+    casa?.imagens_urls?.length > 0
+      ? casa.imagens_urls
+      : casa?.imagem_url
+        ? [casa.imagem_url]
+        : [];
 
-  const anterior = () => setFotoAtiva((p) => (p === 0 ? imagens.length - 1 : p - 1));
-  const proxima = () => setFotoAtiva((p) => (p === imagens.length - 1 ? 0 : p + 1));
+  const anterior = () =>
+    setFotoAtiva((p) => (p === 0 ? imagens.length - 1 : p - 1));
+  const proxima = () =>
+    setFotoAtiva((p) => (p === imagens.length - 1 ? 0 : p + 1));
 
   // Teclado e scroll bloqueado quando o lightbox está aberto
   useEffect(() => {
     if (!lightbox) return;
     const onKey = (e) => {
       if (e.key === "Escape") setLightbox(false);
-      if (e.key === "ArrowLeft") setFotoAtiva((p) => (p === 0 ? imagens.length - 1 : p - 1));
-      if (e.key === "ArrowRight") setFotoAtiva((p) => (p === imagens.length - 1 ? 0 : p + 1));
+      if (e.key === "ArrowLeft")
+        setFotoAtiva((p) => (p === 0 ? imagens.length - 1 : p - 1));
+      if (e.key === "ArrowRight")
+        setFotoAtiva((p) => (p === imagens.length - 1 ? 0 : p + 1));
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -105,6 +155,12 @@ export default function CasaDetalhe() {
   const marcarVisita = () => {
     if (!user) router.push("/auth");
     else router.push(`/marcar-visita/${casa.id}`);
+  };
+
+  // Sem sessão -> login; com sessão -> abre a telazinha
+  const abrirContacto = () => {
+    if (!user) router.push("/auth");
+    else setContactoAberto(true);
   };
 
   if (loading) {
@@ -148,14 +204,19 @@ export default function CasaDetalhe() {
 
   const specs = [
     { label: "Tipologia", valor: casa.tipo, icone: Building2 },
-    { label: "Quartos", valor: casa.quartos, icone: BedDouble },
-    { label: "Casas de Banho", valor: casa.banheiros, icone: Bath },
     { label: "Bairro", valor: casa.bairro, icone: MapPin },
   ];
 
   const linkMapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    [casa.endereco, casa.bairro].filter(Boolean).join(", ")
+    [casa.endereco, casa.bairro].filter(Boolean).join(", "),
   )}`;
+
+  const enderecoMapa = encodeURIComponent(
+    [casa.endereco, casa.bairro].filter(Boolean).join(", "),
+  );
+
+  const numeroWhatsapp = dono?.whatsapp?.replace(/\D/g, "");
+  const numeroTelefone = dono?.telefone?.replace(/\D/g, "");
 
   return (
     <div>
@@ -170,7 +231,10 @@ export default function CasaDetalhe() {
             <ArrowLeft className="w-4 h-4" /> Voltar às casas
           </button>
 
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
             <div className="flex flex-wrap items-center gap-2 mb-4">
               {casa.tipo && (
                 <span className="px-3 py-1 rounded-full bg-linear-to-r from-blue-600 to-cyan-500 text-white text-xs font-bold">
@@ -247,7 +311,8 @@ export default function CasaDetalhe() {
                             <ChevronRight className="w-5 h-5" />
                           </button>
                           <span className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md text-white text-xs font-semibold z-10">
-                            <Images className="w-3.5 h-3.5" /> {fotoAtiva + 1} / {imagens.length}
+                            <Images className="w-3.5 h-3.5" /> {fotoAtiva + 1} /{" "}
+                            {imagens.length}
                           </span>
                         </>
                       )}
@@ -279,37 +344,24 @@ export default function CasaDetalhe() {
                             : "opacity-60 hover:opacity-100"
                         }`}
                       >
-                        <Image src={img} alt={`miniatura ${i + 1}`} fill className="object-cover" sizes="80px" />
+                        <Image
+                          src={img}
+                          alt={`miniatura ${i + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
                       </button>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* ESPECIFICAÇÕES */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {specs.map((s, i) => (
-                  <motion.div
-                    key={s.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + i * 0.07 }}
-                    className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25 mb-3">
-                      <s.icone className="w-5 h-5 text-white" />
-                    </div>
-                    <p className="text-slate-400 text-xs">{s.label}</p>
-                    <p className="text-lg font-extrabold text-slate-900 mt-0.5 wrap-break-word">
-                      {s.valor ?? "—"}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-
               {/* DESCRIÇÃO */}
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8">
-                <h2 className="text-xl font-extrabold text-slate-900 mb-4">Descrição</h2>
+                <h2 className="text-xl font-extrabold text-slate-900 mb-4">
+                  Descrição
+                </h2>
                 <div className="text-slate-600 leading-relaxed whitespace-pre-wrap wrap-break-word">
                   {casa.descricao}
                 </div>
@@ -317,27 +369,36 @@ export default function CasaDetalhe() {
 
               {/* LOCALIZAÇÃO */}
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8">
-                <h2 className="text-xl font-extrabold text-slate-900 mb-4">Localização</h2>
+                <h2 className="text-xl font-extrabold text-slate-900 mb-4">
+                  Localização
+                </h2>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-3">
                     <div className="w-11 h-11 shrink-0 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-900">{casa.bairro}</p>
+                      <p className="font-semibold text-slate-900">
+                        {casa.bairro}
+                      </p>
                       <p className="text-slate-500 text-sm">{casa.endereco}</p>
                     </div>
                   </div>
-                  <a
-                    href={linkMapa}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors"
-                  >
-                    Abrir no mapa <ExternalLink className="w-4 h-4" />
-                  </a>
                 </div>
+                <iframe
+                  src={`https://www.google.com/maps?q=${enderecoMapa}&output=embed`}
+                  className="w-full h-72 rounded-2xl border-0 mt-5"
+                  loading="lazy"
+                  title="Localização da casa"
+                />
               </div>
+
+              {/* INTERMEDIÁRIO (só no telemóvel; no desktop fica no card lateral) */}
+              {dono && (
+                <div className="lg:hidden bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+                  <CardIntermediario dono={dono} onContacto={abrirContacto} />
+                </div>
+              )}
             </div>
 
             {/* CARD LATERAL (desktop) */}
@@ -348,12 +409,17 @@ export default function CasaDetalhe() {
                 transition={{ delay: 0.2 }}
                 className="bg-white rounded-3xl shadow-xl shadow-slate-900/10 border border-slate-100 p-6"
               >
-                <p className="text-slate-400 text-xs uppercase tracking-wider">Renda mensal</p>
+                <p className="text-slate-400 text-xs uppercase tracking-wider">
+                  Renda mensal
+                </p>
                 <p className="mt-1">
                   <span className="text-4xl font-extrabold bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                     {formatarPreco(casa.preco)}
                   </span>
-                  <span className="text-slate-400 text-sm font-medium"> /mês</span>
+                  <span className="text-slate-400 text-sm font-medium">
+                    {" "}
+                    /mês
+                  </span>
                 </p>
 
                 <div className="flex flex-wrap gap-2 mt-5 pb-5 border-b border-slate-100">
@@ -379,6 +445,15 @@ export default function CasaDetalhe() {
                   <CalendarCheck className="w-5 h-5" />
                   {user ? "Marcar Visita" : "Entrar para marcar visita"}
                 </motion.button>
+
+                {/* INTERMEDIÁRIO */}
+                {dono && (
+                  <CardIntermediario
+                    dono={dono}
+                    onContacto={abrirContacto}
+                    className="mt-5 pt-5 border-t border-slate-100"
+                  />
+                )}
               </motion.div>
             </aside>
           </div>
@@ -387,7 +462,9 @@ export default function CasaDetalhe() {
         {/* BARRA FIXA (mobile) */}
         <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-xl border-t border-slate-200 px-4 py-3 flex items-center justify-between gap-4">
           <div>
-            <p className="text-lg font-extrabold text-slate-900 leading-none">{formatarPreco(casa.preco)}</p>
+            <p className="text-lg font-extrabold text-slate-900 leading-none">
+              {formatarPreco(casa.preco)}
+            </p>
             <p className="text-slate-400 text-xs mt-1">/mês</p>
           </div>
           <button
@@ -421,14 +498,20 @@ export default function CasaDetalhe() {
             {imagens.length > 1 && (
               <>
                 <button
-                  onClick={(e) => { e.stopPropagation(); anterior(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    anterior();
+                  }}
                   aria-label="Foto anterior"
                   className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer z-10"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); proxima(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    proxima();
+                  }}
                   aria-label="Próxima foto"
                   className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer z-10"
                 >
@@ -454,6 +537,68 @@ export default function CasaDetalhe() {
                 className="object-contain"
                 sizes="92vw"
               />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL DE CONTACTO */}
+      <AnimatePresence>
+        {contactoAberto && dono && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setContactoAberto(false)}
+            className="fixed inset-0 z-100 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center px-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6"
+            >
+              <button
+                onClick={() => setContactoAberto(false)}
+                aria-label="Fechar"
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <p className="text-xs text-slate-400">Contacto do consultor</p>
+              <h3 className="text-xl font-extrabold text-slate-900 mb-5">
+                {dono.nome}
+              </h3>
+
+              <div className="space-y-3">
+                {numeroWhatsapp && (
+                  <a
+                    href={`https://wa.me/244${numeroWhatsapp}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 w-full px-4 py-3 bg-green-500 text-white font-semibold rounded-2xl hover:bg-green-600 transition-colors"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    WhatsApp: {dono.whatsapp}
+                  </a>
+                )}
+                {numeroTelefone && (
+                  <a
+                    href={`tel:+244${numeroTelefone}`}
+                    className="flex items-center gap-3 w-full px-4 py-3 bg-slate-900 text-white font-semibold rounded-2xl hover:bg-blue-600 transition-colors"
+                  >
+                    <Phone className="w-5 h-5" />
+                    Telefone: {dono.telefone}
+                  </a>
+                )}
+                {!numeroWhatsapp && !numeroTelefone && (
+                  <p className="text-sm text-slate-500">
+                    Este consultor ainda não adicionou contactos.
+                  </p>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}

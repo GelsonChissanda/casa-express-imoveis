@@ -6,31 +6,50 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabaseClient";
 
+const limparNumero = (v) => v.replace(/\D/g, "").replace(/^244/, "");
+const numeroValido = (n) => /^9\d{8}$/.test(n);
+
 export default function CompletarPerfil() {
   const [whatsapp, setWhatsapp] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [role, setRole] = useState("cliente");
-  const [erro, setErro] = useState("");
+  const [erroWhatsapp, setErroWhatsapp] = useState("");
+  const [erroTelefone, setErroTelefone] = useState("");
   const router = useRouter();
   const { user, recarregarPerfil } = useAuth();
 
-async function guardar() {
-  if (!user) return alert("A sessão ainda está a carregar, tenta de novo")
-  const numero = whatsapp.replace(/\D/g, "").replace(/^244/, "")
-  if (!/^9\d{8}$/.test(numero)) {
-    setErro("Número inválido: usa 9 dígitos começados por 9.")
-    return
+  async function guardar() {
+    if (!user) return alert("A sessão ainda está a carregar, tenta de novo");
+
+    const numWhatsapp = limparNumero(whatsapp);
+    const numTelefone = limparNumero(telefone);
+
+    const whatsappOk = numeroValido(numWhatsapp);
+    const telefoneOk = numeroValido(numTelefone);
+
+    setErroWhatsapp(whatsappOk ? "" : "Número inválido: usa 9 dígitos começados por 9.");
+    setErroTelefone(telefoneOk ? "" : "Número inválido: usa 9 dígitos começados por 9.");
+    if (!whatsappOk || !telefoneOk) return;
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .update({
+        whatsapp: numWhatsapp,
+        telefone: numTelefone,
+        role,
+        perfil_completo: true,
+      })
+      .eq("id", user.id)
+      .select();
+
+    if (error) return alert("Erro: " + error.message);
+    if (!data?.length)
+      return alert("Nenhuma linha atualizada: o perfil não existe ou a RLS bloqueou");
+
+    await recarregarPerfil();
+    router.push("/dashboard");
   }
-  setErro("")
-  const { data, error } = await supabase
-    .from("profiles")
-    .update({ whatsapp: numero, role, perfil_completo: true })
-    .eq("id", user.id)
-    .select()
-  if (error) return alert("Erro: " + error.message)
-  if (!data?.length) return alert("Nenhuma linha atualizada: o perfil não existe ou a RLS bloqueou")
-  await recarregarPerfil()
-  router.push("/dashboard")
-}
+
   return (
     <div>
       <Navbar />
@@ -40,11 +59,9 @@ async function guardar() {
             <p className="text-blue-300 text-sm font-medium uppercase tracking-widest mb-1">
               Quase lá
             </p>
-            <h1 className="text-4xl font-bold text-white mb-2">
-              Completar perfil
-            </h1>
+            <h1 className="text-4xl font-bold text-white mb-2">Completar perfil</h1>
             <p className="text-blue-200">
-              Só mais dois dados para começares no CasaExpress
+              Só mais alguns dados para começares no CasaExpress
             </p>
           </div>
         </div>
@@ -56,20 +73,42 @@ async function guardar() {
                 WhatsApp
               </label>
               <input
-  value={whatsapp}
-  onChange={(e) => {
-    setWhatsapp(e.target.value)
-    setErro("")
-  }}
-  placeholder="Ex.: 923 000 000"
-  className={`w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${erro ? "border-red-400" : "border-gray-200"}`}
-/>
-{erro ? (
-  <p className="text-red-500 text-xs mt-1">{erro}</p>
-) : (
-  <p className="text-gray-400 text-xs mt-1">Só a equipa do CasaExpress vê este número.</p>
-)}
+                value={whatsapp}
+                onChange={(e) => {
+                  setWhatsapp(e.target.value);
+                  setErroWhatsapp("");
+                }}
+                placeholder="Ex.: 923 000 000"
+                className={`w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${erroWhatsapp ? "border-red-400" : "border-gray-200"}`}
+              />
+              {erroWhatsapp && (
+                <p className="text-red-500 text-xs mt-1">{erroWhatsapp}</p>
+              )}
             </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Telefone
+              </label>
+              <input
+                type="tel"
+                value={telefone}
+                onChange={(e) => {
+                  setTelefone(e.target.value);
+                  setErroTelefone("");
+                }}
+                placeholder="Ex.: 923 000 000"
+                className={`w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${erroTelefone ? "border-red-400" : "border-gray-200"}`}
+              />
+              {erroTelefone ? (
+                <p className="text-red-500 text-xs mt-1">{erroTelefone}</p>
+              ) : (
+                <p className="text-gray-400 text-xs mt-1">
+                  Pode ser o mesmo número do WhatsApp, mas tem de estar ativo.
+                </p>
+              )}
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 Tipo de perfil
@@ -83,9 +122,10 @@ async function guardar() {
                 <option value="intermediario">Intermediário</option>
               </select>
             </div>
+
             <button
               onClick={guardar}
-              disabled={!whatsapp}
+              disabled={!whatsapp || !telefone}
               className="w-full px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
             >
               Continuar

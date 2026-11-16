@@ -14,6 +14,7 @@ export default function MarcarVisita() {
   const { user } = useAuth()
  
   const [casa, setCasa] = useState(null)
+  const [dono, setDono] = useState(null)
   const [data, setData] = useState("")
   const [hora, setHora] = useState("")
   const [loading, setLoading] = useState(false)
@@ -25,6 +26,8 @@ export default function MarcarVisita() {
       try {
         const dados = await casasService.obterCasa(casaId)
         setCasa(dados)
+        const perfil = await casasService.obterIntermediario(dados.usuario_id)
+        setDono(perfil)
       } catch (err) {
         setErro("Casa não encontrada")
         console.error(err)
@@ -68,7 +71,7 @@ export default function MarcarVisita() {
   }
  
   if (sucesso) {
-    const numero = casa?.whatsapp?.replace(/\D/g, "")
+    const numero = dono?.whatsapp?.replace(/\D/g, "")
     const mensagem = encodeURIComponent(
       `Olá! Marquei uma visita à casa "${casa?.titulo}". Contacto via CasaExpress.`
     )
@@ -87,7 +90,7 @@ export default function MarcarVisita() {
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Visita Marcada!</h2>
             <p className="text-gray-600 mb-6">A tua visita foi marcada com sucesso.</p>
  
-            {casa?.whatsapp && (
+            {dono?.whatsapp && (
               <a href={linkWhatsapp} target="_blank" rel="noopener noreferrer"
                 className="block w-full py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition mb-3">
                 📱 Contactar proprietário no WhatsApp
@@ -143,7 +146,7 @@ export default function MarcarVisita() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
  
-              {casa?.whatsapp && (
+              {dono?.whatsapp && (
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-green-700 text-sm font-medium">
                     ✅ Após marcar, poderás contactar o proprietário via WhatsApp

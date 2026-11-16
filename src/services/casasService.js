@@ -10,6 +10,16 @@ export const casasService = {
     return data;
   },
 
+  async obterIntermediario(id) {
+    const { data, error } = await supabase
+      .from("intermediarios_publicos")
+      .select("nome, avatar_url, whatsapp, telefone")
+      .eq("id", id)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
   async obterCasa(id) {
     const { data, error } = await supabase
       .from("casas")

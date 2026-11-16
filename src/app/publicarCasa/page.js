@@ -8,11 +8,6 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Image from "next/image";
 
-
-
-
-
-
 const CLOUD_NAME = "dw8t6gigw";
 const UPLOAD_PRESET = "casas-fotos";
 
@@ -73,32 +68,31 @@ const bairrosLuanda = [
 ].sort((a, b) => a.localeCompare(b, "pt"));
 
 export default function PublicarCasa() {
-const [sugestoes, setSugestoes] = useState([])
-const [mostrarSugestoes, setMostrarSugestoes] = useState(false)
-const [bairroValido, setBairroValido] = useState(false)
+  const [sugestoes, setSugestoes] = useState([]);
+  const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+  const [bairroValido, setBairroValido] = useState(false);
 
-const selecionarBairro = (bairro) => {
-  atualizar("bairro", bairro)
-  setBairroValido(true)
-  setMostrarSugestoes(false)
-  setSugestoes([])
-}
+  const selecionarBairro = (bairro) => {
+    atualizar("bairro", bairro);
+    setBairroValido(true);
+    setMostrarSugestoes(false);
+    setSugestoes([]);
+  };
 
-const handleBairroChange = (valor) => {
-  atualizar("bairro", valor)
-  setBairroValido(false)
-  if (valor.length > 0) {
-    const filtradas = bairrosLuanda.filter(b =>
-      b.toLowerCase().includes(valor.toLowerCase())
-    )
-    setSugestoes(filtradas)
-    setMostrarSugestoes(true)
-  } else {
-    setSugestoes([])
-    setMostrarSugestoes(false)
-  }
-}
-
+  const handleBairroChange = (valor) => {
+    atualizar("bairro", valor);
+    setBairroValido(false);
+    if (valor.length > 0) {
+      const filtradas = bairrosLuanda.filter((b) =>
+        b.toLowerCase().includes(valor.toLowerCase()),
+      );
+      setSugestoes(filtradas);
+      setMostrarSugestoes(true);
+    } else {
+      setSugestoes([]);
+      setMostrarSugestoes(false);
+    }
+  };
 
   const { user } = useAuth();
   const router = useRouter();
@@ -111,7 +105,6 @@ const handleBairroChange = (valor) => {
     quartos: "",
     casasDeBanho: "",
     tipo: "",
-    whatsapp: "",
   });
 
   const [fotos, setFotos] = useState([]);
@@ -146,13 +139,11 @@ const handleBairroChange = (valor) => {
       e.descricao = "Descrição muito curta (mín. 30 caracteres)";
     if (!form.preco) e.preco = "Preço obrigatório";
     else if (Number(form.preco) <= 0) e.preco = "Preço inválido";
-    if (!form.bairro || !bairroValido) e.bairro = "Selecciona um bairro da lista"
+    if (!form.bairro || !bairroValido)
+      e.bairro = "Selecciona um bairro da lista";
     if (!form.quartos) e.quartos = "Obrigatório";
     if (!form.casasDeBanho) e.casasDeBanho = "Obrigatório";
     if (!form.tipo) e.tipo = "Tipologia obrigatória";
-    if (!form.whatsapp.trim()) e.whatsapp = "WhatsApp obrigatório";
-    else if (!/^\d{9,15}$/.test(form.whatsapp.replace(/\s/g, "")))
-      e.whatsapp = "Número inválido (só dígitos, 9-15)";
     return e;
   };
 
@@ -198,7 +189,6 @@ const handleBairroChange = (valor) => {
         quartos: parseInt(form.quartos),
         banheiros: parseInt(form.casasDeBanho),
         tipo: form.tipo,
-        whatsapp: form.whatsapp.replace(/\s/g, ""),
         imagem_url: imagens_urls[0] || "",
         imagens_urls,
         created_at: new Date(),
@@ -260,7 +250,6 @@ const handleBairroChange = (valor) => {
                     quartos: "",
                     casasDeBanho: "",
                     tipo: "",
-                    whatsapp: "",
                   });
                   setFotos([]);
                 }}
@@ -451,13 +440,13 @@ const handleBairroChange = (valor) => {
             </div>
           </div>
 
-          {/* SECÇÃO 3: Localização e contacto */}
+          {/* SECÇÃO 3: Localização */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="font-bold text-gray-800 mb-5 flex items-center gap-2">
               <span className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full text-xs font-black flex items-center justify-center">
                 3
               </span>
-              Localização e contacto
+              Localização
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -472,19 +461,20 @@ const handleBairroChange = (valor) => {
                   className={`w-full px-3 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 ${erros.bairro ? "border-red-400" : "border-gray-200"}`}
                 />
 
-
-{mostrarSugestoes && sugestoes.length > 0 && (
-  <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto">
-    {sugestoes.map((b) => (
-      <button key={b} type="button"
-        onClick={() => selecionarBairro(b)}
-        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-50 last:border-0">
-        {b}
-      </button>
-    ))}
-  </div>
-)}
-
+                {mostrarSugestoes && sugestoes.length > 0 && (
+                  <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto">
+                    {sugestoes.map((b) => (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => selecionarBairro(b)}
+                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-50 last:border-0"
+                      >
+                        {b}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 {erros.bairro && (
                   <p className="text-red-500 text-xs mt-1">{erros.bairro}</p>
@@ -514,30 +504,6 @@ const handleBairroChange = (valor) => {
                     {new Intl.NumberFormat("pt-AO").format(form.preco)} Kz/mês
                   </p>
                 )}
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
-                  WhatsApp do proprietário{" "}
-                  <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                    🇦🇴 +244
-                  </span>
-                  <input
-                    type="tel"
-                    placeholder="923 456 789"
-                    value={form.whatsapp}
-                    onChange={(e) => atualizar("whatsapp", e.target.value)}
-                    className={`w-full pl-20 pr-3 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 ${erros.whatsapp ? "border-red-400" : "border-gray-200"}`}
-                  />
-                </div>
-                {erros.whatsapp && (
-                  <p className="text-red-500 text-xs mt-1">{erros.whatsapp}</p>
-                )}
-                <p className="text-xs text-gray-400 mt-1">
-                  Os clientes usarão este número para te contactar via WhatsApp
-                </p>
               </div>
             </div>
           </div>
