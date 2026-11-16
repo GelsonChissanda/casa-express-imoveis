@@ -1,8 +1,8 @@
-"use client"
-import Image from "next/image"
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { motion, AnimatePresence, animate } from "framer-motion"
+"use client";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence, animate } from "framer-motion";
 import {
   Plus,
   Trash2,
@@ -15,43 +15,47 @@ import {
   Wallet,
   TrendingUp,
   Home,
-} from "lucide-react"
-import { useAuth } from "../../contexts/AuthContext"
-import { casasService } from "../../services/casasService"
-import { visitasService } from "../../services/visitasService"
-import Navbar from "../../components/Navbar"
-import Footer from "../../components/Footer"
+} from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+import { casasService } from "../../services/casasService";
+import { visitasService } from "../../services/visitasService";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
 
 const formatarPreco = (v) =>
   new Intl.NumberFormat("pt-AO", {
     style: "currency",
     currency: "AOA",
     minimumFractionDigits: 0,
-  }).format(v)
+  }).format(v);
 
 const estiloStatus = {
   agendada: "bg-emerald-100 text-emerald-700",
   cancelada: "bg-rose-100 text-rose-600",
-}
+};
 
 function Contador({ valor }) {
-  const [n, setN] = useState(0)
+  const [n, setN] = useState(0);
   useEffect(() => {
     const controls = animate(0, valor, {
       duration: 1,
       ease: "easeOut",
       onUpdate: (v) => setN(Math.round(v)),
-    })
-    return () => controls.stop()
-  }, [valor])
-  return <>{n}</>
+    });
+    return () => controls.stop();
+  }, [valor]);
+  return <>{n}</>;
 }
 
 function MiniBarras({ valores }) {
   if (valores.length === 0) {
-    return <p className="text-slate-400 text-xs">Publica a primeira casa para ver o gráfico</p>
+    return (
+      <p className="text-slate-400 text-xs">
+        Publica a primeira casa para ver o gráfico
+      </p>
+    );
   }
-  const max = Math.max(...valores, 1)
+  const max = Math.max(...valores, 1);
   return (
     <div className="flex items-end gap-1.5 h-20">
       {valores.map((v, i) => (
@@ -64,7 +68,7 @@ function MiniBarras({ valores }) {
         />
       ))}
     </div>
-  )
+  );
 }
 
 function CartaoBento({ className = "", children, delay = 0 }) {
@@ -77,14 +81,17 @@ function CartaoBento({ className = "", children, delay = 0 }) {
     >
       {children}
     </motion.div>
-  )
+  );
 }
 
 function SkeletonCards() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="bg-white rounded-3xl overflow-hidden border border-slate-100 animate-pulse">
+        <div
+          key={i}
+          className="bg-white rounded-3xl overflow-hidden border border-slate-100 animate-pulse"
+        >
           <div className="h-56 bg-slate-200" />
           <div className="p-5 space-y-3">
             <div className="h-5 bg-slate-200 rounded w-3/4" />
@@ -94,79 +101,187 @@ function SkeletonCards() {
         </div>
       ))}
     </div>
-  )
+  );
+}
+
+function ChatModal({ visita, userId, onClose }) {
+  const [mensagens, setMensagens] = useState([]);
+  const [texto, setTexto] = useState("");
+  const [enviando, setEnviando] = useState(false);
+
+  const carregar = async () => {
+    try {
+      setMensagens(await visitasService.obterMensagens(visita.id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    carregar();
+  }, []); // eslint-disable-line
+
+  const jaEnviei = mensagens.some((m) => m.autor_id === userId);
+
+  const enviar = async () => {
+    if (!texto.trim()) return;
+    try {
+      setEnviando(true);
+      await visitasService.enviarMensagem(visita.id, userId, texto.trim());
+      setTexto("");
+      await carregar();
+    } catch {
+      alert("Erro ao enviar mensagem");
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-slate-950/60 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-3xl w-full max-w-md p-6 space-y-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-slate-900">
+            Chat · {visita.cliente?.nome || "Cliente"}
+          </h3>
+          <button onClick={onClose} className="text-slate-400 cursor-pointer">
+            Fechar
+          </button>
+        </div>
+
+        <div className="space-y-2 max-h-72 overflow-y-auto">
+          {mensagens.length === 0 && (
+            <p className="text-slate-400 text-sm">Ainda sem mensagens.</p>
+          )}
+          {mensagens.map((m) => (
+            <div
+              key={m.id}
+              className={`px-4 py-2 rounded-2xl text-sm max-w-[85%] ${
+                m.autor_id === userId
+                  ? "bg-blue-600 text-white ml-auto"
+                  : "bg-slate-100 text-slate-800"
+              }`}
+            >
+              {m.texto}
+            </div>
+          ))}
+        </div>
+
+        {!jaEnviei && (
+          <div className="space-y-2">
+            <textarea
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              maxLength={500}
+              rows={3}
+              placeholder="Escreve a tua resposta (só podes enviar 1 mensagem)"
+              className="w-full border border-slate-200 rounded-xl p-3 text-sm"
+            />
+            <button
+              onClick={enviar}
+              disabled={enviando}
+              className="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-50"
+            >
+              {enviando ? "A enviar..." : "Enviar"}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function DashboardIntermediario() {
-  const router = useRouter()
-  const { user, logout } = useAuth()
+  const router = useRouter();
+  const { user, logout } = useAuth();
 
-  const [minhasCasas, setMinhasCasas] = useState([])
-  const [minhasVisitas, setMinhasVisitas] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [aba, setAba] = useState("casas")
+  const [minhasCasas, setMinhasCasas] = useState([]);
+  const [minhasVisitas, setMinhasVisitas] = useState([]);
+  const [visitasRecebidas, setVisitasRecebidas] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [aba, setAba] = useState("casas");
+  const [chatVisita, setChatVisita] = useState(null);
 
   const nomeUtilizador =
     user?.user_metadata?.nome ||
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name ||
-    user?.email
+    user?.email;
 
-  const primeiroNome = nomeUtilizador?.split(" ")[0]
-  const avatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture
+  const primeiroNome = nomeUtilizador?.split(" ")[0];
+  const avatar =
+    user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
 
   useEffect(() => {
-    carregarDados()
-  }, []) // eslint-disable-line
+    carregarDados();
+  }, []); // eslint-disable-line
 
   const carregarDados = async () => {
     try {
-      setLoading(true)
-      const casas = await casasService.listarCasas()
-      setMinhasCasas(casas.filter((c) => c.usuario_id === user.id))
-      const visitas = await visitasService.obterMinhasVisitas(user.id)
-      setMinhasVisitas(visitas)
+      setLoading(true);
+      const casas = await casasService.listarCasas();
+      setMinhasCasas(casas.filter((c) => c.usuario_id === user.id));
+      const visitas = await visitasService.obterMinhasVisitas(user.id);
+      setMinhasVisitas(visitas);
+      const recebidas = await visitasService.obterVisitasDasMinhasCasas(
+        user.id,
+      );
+      setVisitasRecebidas(recebidas);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const deletarCasa = async (id) => {
     if (confirm("Tem a certeza que queres deletar esta casa?")) {
       try {
-        await casasService.deletarCasa(id)
-        carregarDados()
+        await casasService.deletarCasa(id);
+        carregarDados();
       } catch {
-        alert("Erro ao deletar casa")
+        alert("Erro ao deletar casa");
       }
     }
-  }
+  };
 
   const cancelarVisita = async (id) => {
     if (confirm("Tem a certeza que queres cancelar esta visita?")) {
       try {
-        await visitasService.cancelarVisita(id)
-        carregarDados()
+        await visitasService.cancelarVisita(id);
+        carregarDados();
       } catch {
-        alert("Erro ao cancelar visita")
+        alert("Erro ao cancelar visita");
       }
     }
-  }
+  };
 
-  const precos = minhasCasas.map((c) => Number(c.preco) || 0)
-  const valorTotal = precos.reduce((a, b) => a + b, 0)
-  const precoMedio = precos.length ? valorTotal / precos.length : 0
-  const visitasAgendadas = minhasVisitas.filter((v) => v.status === "agendada")
+  const precos = minhasCasas.map((c) => Number(c.preco) || 0);
+  const valorTotal = precos.reduce((a, b) => a + b, 0);
+  const precoMedio = precos.length ? valorTotal / precos.length : 0;
+  const visitasAgendadas = minhasVisitas.filter((v) => v.status === "agendada");
   const proximaVisita = visitasAgendadas
     .filter((v) => new Date(v.data_hora) >= new Date())
-    .sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora))[0]
+    .sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora))[0];
 
   const abas = [
-    { id: "casas", label: `Minhas Casas (${minhasCasas.length})`, icone: Building2 },
-    { id: "visitas", label: `Visitas (${minhasVisitas.length})`, icone: CalendarDays },
-  ]
+    {
+      id: "casas",
+      label: `Minhas Casas (${minhasCasas.length})`,
+      icone: Building2,
+    },
+    {
+      id: "visitas",
+      label: `Visitas (${visitasRecebidas.length})`,
+      icone: CalendarDays,
+    },
+  ];
 
   return (
     <div>
@@ -180,7 +295,8 @@ export default function DashboardIntermediario() {
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: "radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)",
+              backgroundImage:
+                "radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)",
               backgroundSize: "24px 24px",
             }}
           />
@@ -214,7 +330,9 @@ export default function DashboardIntermediario() {
                       {primeiroNome}
                     </span>
                   </h1>
-                  <p className="text-slate-400 text-sm mt-1">Gere as tuas casas e acompanha as visitas</p>
+                  <p className="text-slate-400 text-sm mt-1">
+                    Gere as tuas casas e acompanha as visitas
+                  </p>
                 </div>
               </div>
 
@@ -245,7 +363,9 @@ export default function DashboardIntermediario() {
                 </p>
                 <p className="text-3xl sm:text-4xl font-extrabold text-white mt-2">
                   {formatarPreco(valorTotal)}
-                  <span className="text-slate-500 text-sm font-medium">/mês</span>
+                  <span className="text-slate-500 text-sm font-medium">
+                    /mês
+                  </span>
                 </p>
                 <p className="flex items-center gap-1.5 text-cyan-300 text-xs mt-2 mb-5">
                   <TrendingUp className="w-3.5 h-3.5" />
@@ -254,7 +374,10 @@ export default function DashboardIntermediario() {
                 <MiniBarras valores={precos.slice(-12)} />
               </CartaoBento>
 
-              <CartaoBento delay={0.2} className="flex flex-col justify-between">
+              <CartaoBento
+                delay={0.2}
+                className="flex flex-col justify-between"
+              >
                 <div className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
@@ -262,11 +385,16 @@ export default function DashboardIntermediario() {
                   <p className="text-5xl font-extrabold text-white leading-none">
                     <Contador valor={minhasCasas.length} />
                   </p>
-                  <p className="text-slate-400 text-xs mt-2">Casas publicadas</p>
+                  <p className="text-slate-400 text-xs mt-2">
+                    Casas publicadas
+                  </p>
                 </div>
               </CartaoBento>
 
-              <CartaoBento delay={0.3} className="flex flex-col justify-between">
+              <CartaoBento
+                delay={0.3}
+                className="flex flex-col justify-between"
+              >
                 <div className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
                   <CalendarCheck className="w-6 h-6 text-white" />
                 </div>
@@ -274,14 +402,19 @@ export default function DashboardIntermediario() {
                   <p className="text-5xl font-extrabold text-white leading-none">
                     <Contador valor={visitasAgendadas.length} />
                   </p>
-                  <p className="text-slate-400 text-xs mt-2">Visitas agendadas</p>
+                  <p className="text-slate-400 text-xs mt-2">
+                    Visitas agendadas
+                  </p>
                   {proximaVisita && (
                     <p className="text-cyan-300 text-xs mt-2">
                       Próxima:{" "}
-                      {new Date(proximaVisita.data_hora).toLocaleDateString("pt-AO", {
-                        day: "2-digit",
-                        month: "short",
-                      })}
+                      {new Date(proximaVisita.data_hora).toLocaleDateString(
+                        "pt-AO",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        },
+                      )}
                     </p>
                   )}
                 </div>
@@ -298,7 +431,9 @@ export default function DashboardIntermediario() {
                 key={a.id}
                 onClick={() => setAba(a.id)}
                 className={`relative flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap cursor-pointer transition-colors ${
-                  aba === a.id ? "text-white" : "text-slate-500 hover:text-slate-800"
+                  aba === a.id
+                    ? "text-white"
+                    : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 {aba === a.id && (
@@ -342,7 +477,9 @@ export default function DashboardIntermediario() {
                         <Plus className="w-8 h-8 text-white" />
                       </div>
                       <p className="text-slate-600 font-semibold text-sm">
-                        {minhasCasas.length === 0 ? "Publicar a primeira casa" : "Publicar nova casa"}
+                        {minhasCasas.length === 0
+                          ? "Publicar a primeira casa"
+                          : "Publicar nova casa"}
                       </p>
                     </motion.button>
 
@@ -372,7 +509,9 @@ export default function DashboardIntermediario() {
                           <div className="absolute inset-0 bg-linear-to-t from-slate-950/70 via-transparent to-transparent" />
                           <span className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur text-blue-700 font-bold text-sm shadow">
                             {formatarPreco(casa.preco)}
-                            <span className="text-slate-400 font-medium text-xs">/mês</span>
+                            <span className="text-slate-400 font-medium text-xs">
+                              /mês
+                            </span>
                           </span>
                         </div>
                         <div className="p-5">
@@ -403,20 +542,22 @@ export default function DashboardIntermediario() {
                 {/* VISITAS */}
                 {aba === "visitas" && (
                   <div>
-                    {minhasVisitas.length === 0 ? (
+                    {visitasRecebidas.length === 0 ? (
                       <div className="flex flex-col items-center justify-center gap-4 py-16 bg-white rounded-3xl border border-dashed border-slate-200">
                         <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-blue-100 to-cyan-100 flex items-center justify-center">
                           <CalendarDays className="w-8 h-8 text-blue-600" />
                         </div>
-                        <p className="text-slate-500 text-sm">Ainda não tens visitas agendadas</p>
+                        <p className="text-slate-500 text-sm">
+                          Ainda não recebeste pedidos de visita
+                        </p>
                       </div>
                     ) : (
                       <div className="relative pl-12">
                         <div className="absolute left-5 top-2 bottom-2 w-px bg-linear-to-b from-blue-500/60 via-slate-200 to-transparent" />
                         <div className="space-y-5">
-                          {minhasVisitas.map((visita, i) => {
-                            const data = new Date(visita.data_hora)
-                            const eProxima = proximaVisita?.id === visita.id
+                          {visitasRecebidas.map((visita, i) => {
+                            const data = new Date(visita.data_hora);
+                            const eProxima = proximaVisita?.id === visita.id;
                             return (
                               <motion.div
                                 key={visita.id}
@@ -434,19 +575,27 @@ export default function DashboardIntermediario() {
                                 />
                                 <div
                                   className={`rounded-3xl border shadow-sm hover:shadow-lg transition-shadow p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                                    eProxima ? "border-blue-300 bg-blue-50/60" : "border-slate-100 bg-white"
+                                    eProxima
+                                      ? "border-blue-300 bg-blue-50/60"
+                                      : "border-slate-100 bg-white"
                                   }`}
                                 >
                                   <div className="flex items-center gap-4">
                                     <div className="w-16 h-16 shrink-0 rounded-2xl bg-linear-to-br from-blue-600 to-cyan-500 text-white flex flex-col items-center justify-center shadow-lg shadow-blue-500/25">
-                                      <span className="text-2xl font-extrabold leading-none">{data.getDate()}</span>
+                                      <span className="text-2xl font-extrabold leading-none">
+                                        {data.getDate()}
+                                      </span>
                                       <span className="text-[10px] uppercase tracking-wider mt-1 opacity-90">
-                                        {data.toLocaleDateString("pt-AO", { month: "short" })}
+                                        {data.toLocaleDateString("pt-AO", {
+                                          month: "short",
+                                        })}
                                       </span>
                                     </div>
                                     <div>
                                       <div className="flex items-center gap-2 flex-wrap">
-                                        <h3 className="font-bold text-slate-900">{visita.casas?.titulo || "Casa"}</h3>
+                                        <h3 className="font-bold text-slate-900">
+                                          {visita.casas?.titulo || "Casa"}
+                                        </h3>
                                         {eProxima && (
                                           <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-wider">
                                             Próxima
@@ -455,11 +604,22 @@ export default function DashboardIntermediario() {
                                       </div>
                                       <p className="flex items-center gap-1.5 text-slate-500 text-sm mt-1">
                                         <Clock className="w-3.5 h-3.5" />
-                                        {data.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })}
+                                        {data.toLocaleTimeString("pt-AO", {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })}
+                                      </p>
+                                      <p className="text-slate-800 text-sm font-semibold mt-1">
+                                        {visita.cliente?.nome}
+                                      </p>
+                                      <p className="text-slate-500 text-xs">
+                                        WhatsApp: {visita.cliente?.whatsapp} ·
+                                        Tel: {visita.cliente?.telefone}
                                       </p>
                                       <span
                                         className={`inline-block mt-2 px-3 py-1 text-xs font-semibold rounded-full capitalize ${
-                                          estiloStatus[visita.status] || "bg-slate-100 text-slate-500"
+                                          estiloStatus[visita.status] ||
+                                          "bg-slate-100 text-slate-500"
                                         }`}
                                       >
                                         {visita.status}
@@ -467,14 +627,14 @@ export default function DashboardIntermediario() {
                                     </div>
                                   </div>
                                   <button
-                                    onClick={() => cancelarVisita(visita.id)}
-                                    className="px-5 py-2.5 bg-rose-50 text-rose-600 rounded-xl text-sm font-semibold hover:bg-rose-100 transition-colors cursor-pointer"
-                                  >
-                                    Cancelar
-                                  </button>
+  onClick={() => setChatVisita(visita)}
+  className="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-sm font-semibold hover:bg-blue-100 transition-colors cursor-pointer"
+>
+  Chat
+</button>
                                 </div>
                               </motion.div>
-                            )
+                            );
                           })}
                         </div>
                       </div>
@@ -486,7 +646,14 @@ export default function DashboardIntermediario() {
           )}
         </div>
       </div>
+      {chatVisita && (
+  <ChatModal
+    visita={chatVisita}
+    userId={user.id}
+    onClose={() => setChatVisita(null)}
+  />
+)}
       <Footer />
     </div>
-  )
+  );
 }

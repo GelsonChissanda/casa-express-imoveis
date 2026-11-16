@@ -49,4 +49,38 @@ export const visitasService = {
     if (error) throw error
     return data[0]
   },
+    async enviarMensagem(visitaId, autorId, texto) {
+    const { data, error } = await supabase
+      .from('mensagens_visita')
+      .insert([{ visita_id: visitaId, autor_id: autorId, texto }])
+      .select()
+    if (error) throw error
+    return data[0]
+  },
+
+  async obterMensagens(visitaId) {
+    const { data, error } = await supabase
+      .from('mensagens_visita')
+      .select('*')
+      .eq('visita_id', visitaId)
+      .order('created_at')
+    if (error) throw error
+    return data
+  },
+    async obterVisitasDasMinhasCasas(donoId) {
+    const { data: visitas, error } = await supabase
+      .from('visitas')
+      .select('*, casas!inner(titulo, usuario_id), mensagens_visita(*)')
+      .eq('casas.usuario_id', donoId)
+    if (error) throw error
+    const ids = [...new Set(visitas.map(v => v.usuario_id))]
+    const { data: clientes } = await supabase
+      .from('intermediarios_publicos')
+      .select('id, nome, whatsapp, telefone')
+      .in('id', ids)
+    return visitas.map(v => ({
+      ...v,
+      cliente: clientes?.find(c => c.id === v.usuario_id) || null
+    }))
+  },
 }

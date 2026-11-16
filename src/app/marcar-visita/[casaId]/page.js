@@ -17,6 +17,7 @@ export default function MarcarVisita() {
   const [dono, setDono] = useState(null)
   const [data, setData] = useState("")
   const [hora, setHora] = useState("")
+  const [mensagem, setMensagem] = useState("")
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState("")
   const [sucesso, setSucesso] = useState(false)
@@ -46,6 +47,11 @@ export default function MarcarVisita() {
         setErro("Preenche data e hora")
         return
       }
+
+      if (!mensagem.trim()) {
+        setErro("Escreve uma mensagem para o proprietário")
+        return
+      }
  
       const dataHora = new Date(`${data}T${hora}`)
       if (dataHora < new Date()) {
@@ -53,12 +59,14 @@ export default function MarcarVisita() {
         return
       }
  
-      await visitasService.marcarVisita({
+      const visita = await visitasService.marcarVisita({
         usuario_id: user.id,
         casa_id: casaId,
         data_hora: dataHora.toISOString(),
         status: "agendada",
       })
+
+      await visitasService.enviarMensagem(visita.id, user.id, mensagem.trim())
  
       setSucesso(true)
  
@@ -72,10 +80,10 @@ export default function MarcarVisita() {
  
   if (sucesso) {
     const numero = dono?.whatsapp?.replace(/\D/g, "")
-    const mensagem = encodeURIComponent(
+    const textoWhatsapp = encodeURIComponent(
       `Olá! Marquei uma visita à casa "${casa?.titulo}". Contacto via CasaExpress.`
     )
-    const linkWhatsapp = `https://wa.me/244${numero}?text=${mensagem}`
+    const linkWhatsapp = `https://wa.me/244${numero}?text=${textoWhatsapp}`
  
     return (
       <div>
@@ -143,6 +151,15 @@ export default function MarcarVisita() {
                   Hora <span className="text-red-500">*</span>
                 </label>
                 <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Mensagem para o proprietário <span className="text-red-500">*</span>
+                </label>
+                <textarea value={mensagem} onChange={(e) => setMensagem(e.target.value)}
+                  required maxLength={500} rows={3}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
  
