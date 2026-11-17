@@ -70,8 +70,12 @@ export default function MarcarVisita() {
  
       setSucesso(true)
  
-    } catch (err) {
-      setErro(err.message || "Erro ao marcar visita")
+        } catch (err) {
+      if (err.code === "23505") {
+        setErro("Já marcaste visita nesta casa.")
+      } else {
+        setErro("Não foi possível marcar a visita. Tenta de novo.")
+      }
       console.error(err)
     } finally {
       setLoading(false)
